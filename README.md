@@ -137,6 +137,8 @@ Now we need to configure nginx. First, backup the original configuration and edi
 
 Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
 
+Make sure you replace the external hostname and two occurances of your internal IP.
+
 Test the configuration with:
 ```
 [root@pms-vm ~]# /usr/local/openresty/nginx/sbin/nginx -t
