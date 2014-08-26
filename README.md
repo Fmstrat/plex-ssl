@@ -11,14 +11,15 @@ For the sake of this guide, the following settings are used:
 - External hostname: *my.externalhost.com*
 - External port: *33443*
 
-**SETUP YOUR FIREWALL**
+Setup your firewall
+--------------
 
 Use the following port forwarding options on your firewall.
 - External port 33443 -> pms-vm:33443
 
 
-**DOWNLOAD AND INSTALL PLEX**
-
+Download and install Plex
+--------------
 Use the following commands to download and install Plex. You can get the URL for the latest version of Plex from https://plex.tv/downloads
 
 ```
@@ -38,7 +39,8 @@ Now, configure Plex:
 - Lastly, add media to your library
 
 
-**EDIT YOUR HOSTS FILE**
+Edit your hosts file
+--------------
 
 To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost, and provide another hostname for the real plex.tv IP for outbound contact.
 
@@ -51,7 +53,8 @@ And add:
 192.168.3.207	plex.tv
 ```
 
-**SET UP YOUR CERTIFICATES**
+Set up your certificates
+--------------
 
 We will need two sets of certificates, one that is used as a Man In The Middle (MITM) certificate that PMS will use when connecting to the "fake" plex.tv host, and another, trusted certificate to use when external hosts connect to your system. The free certs from http://StartSSL.com has been verified to work on Android and Plex Web so far.
 
@@ -112,7 +115,8 @@ At this point, you should place your external, valid certificate and key here. W
 [root@pms-vm external]# chmod 600 *
 ```
 
-**INSTALL NGINX**
+Install nginx
+--------------
 
 In Ubuntu, this could be as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/
 
@@ -152,7 +156,8 @@ And if everything is OK, start up nginx and restart PMS:
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
 
-**KNOWN PROBLEMS**
+Known problems
+--------------
 
 The following is a list of known issues thus far:
 - Due to Plex.tv's use of unsecure Web Sockets, using the plex.tv host will still attempt to communicate via HTTP. This should not be an security issue for external hosts if no HTTP ports are open, as the vulnerable token would not be transmitted until a connection is established, but it does create problems with functionality.
