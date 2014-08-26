@@ -105,10 +105,10 @@ Now we need to setup our external, valid certificate:
 [root@pms-vm mitm]# mkdir -p /etc/pki/tls/certs/external
 [root@pms-vm external]# cd /etc/pki/tls/certs/external
 ```
-At this point, you should place your external, valid certificate and key here. We will call these **external.crt** and **external.key** from here out. If you are using a lower priced certificate, you will likely also have a Certificate Authority file, which we will call **CA.crt**. You should combine this and your external certificate into one file at this point, and set permissions:
+At this point, you should place your external, valid certificate and key here. We will call these **external.cer** and **external.key** from here out. If you are using a lower priced certificate, you will likely also have a Certificate Authority file, which we will call **CA.cer**. You should combine this and your external certificate into one file at this point, and set permissions:
 ```
-[root@pms-vm external]# cat CA.crt > external.bundle.crt
-[root@pms-vm external]# cat external.crt >> external.bundle.crt
+[root@pms-vm external]# cat CA.cer > external.bundle.cer
+[root@pms-vm external]# cat external.cer >> external.bundle.cer
 [root@pms-vm external]# chmod 600 *
 ```
 
@@ -135,7 +135,7 @@ Now we need to configure nginx. First, backup the original configuration and edi
 [root@pms-vm ~]# vi /usr/local/openresty/nginx/conf/nginx.conf
 ```
 
-Then replace the contents of that file with the file located here: <INSERT FILE>
+Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
 
 Test the configuration with:
 ```
