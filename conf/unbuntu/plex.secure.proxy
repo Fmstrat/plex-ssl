@@ -1,0 +1,46 @@
+# Reverse HTTPS proxy for Plex Media Server
+
+server {
+
+    listen 30443;
+    server_name my.externalhost.com;
+
+    gzip             on;
+    gzip_proxied     any;
+    gzip_types       text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/$
+    gzip_vary        on;
+
+    ssl on;
+    ssl_certificate /usr/local/nginx/conf/server.pem;
+    ssl_certificate_key /usr/local/nginx/conf/server.key;
+    ssl_session_cache shared:SSL:10m;
+
+    # if port was accessed as http redirect https
+    # (.js from plex.tv checks server status using http. Not good.)
+    error_page 497 =303 https://$host:$server_port$request_uri;
+
+    location ~ "(.*)websockets(.*)" {
+
+        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+        break;
+
+    }
+
+    location / {
+
+        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_set_header Host $host:$server_port;
+
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_redirect http://$host:$server_port https://$host:$server_port;
+
+
+    }
+
+}
