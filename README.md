@@ -198,8 +198,10 @@ In Ubuntu, this os as easy as installing the nginx and nginx-lua packages, but C
 Now we need to configure nginx. First, backup the original configuration and edit the file:
 ```
 [root@pms-vm ngx_openresty-1.7.0.1]# cd
-[root@pms-vm ~]# cp /usr/local/openresty/nginx/conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.orig
-[root@pms-vm ~]# vi /usr/local/openresty/nginx/conf/nginx.conf
+[root@pms-vm ~]# cd /usr/local/openresty/nginx/conf/
+[root@pms-vm conf]# mv nginx.conf nginx.conf.orig
+[root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/centos/nginx.conf
+[root@pms-vm conf]# vi nginx.conf
 ```
 
 Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
