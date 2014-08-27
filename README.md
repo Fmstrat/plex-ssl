@@ -19,7 +19,7 @@ The Ubuntu configuration guide assumes the following:
 - Your Plex Media Server (PMS) may be installed on a different machine.
 
 
-WORKING ON NOW CONTENT
+WORKING ON NEW CONTENT
 
 
 
