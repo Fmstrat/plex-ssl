@@ -142,8 +142,10 @@ Unfortunately, CentOS does not have a preconfigured nginx with lua available, ev
 Now we need to configure nginx. First, backup the original configuration and edit the file:
 ```
 [root@pms-vm ngx_openresty-1.7.0.1]# cd
-[root@pms-vm ~]# cp /usr/local/openresty/nginx/conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.orig
-[root@pms-vm ~]# vi /usr/local/openresty/nginx/conf/nginx.conf
+[root@pms-vm ~]# cd /usr/local/openresty/nginx/conf/
+[root@pms-vm conf]# mv nginx.conf nginx.conf.orig
+[root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/centos/nginx.conf
+[root@pms-vm conf]# vi nginx.conf
 ```
 
 Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
@@ -173,8 +175,9 @@ Install nginx with LUA support:
 Download the Ubuntu config files into the conf.d directory:
 ```
 ~# cd /etc/nginx/conf.d
-conf.d# wget <FILE>
-conf.d# wget <FILE>
+conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/plex.tv.proxy
+conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/pms.https.proxy
+conf.d# vi nginx.conf
 ```
 Edit these files to suit your needs, making sure you replace the external hostname and two occurances of your internal IP.
 
