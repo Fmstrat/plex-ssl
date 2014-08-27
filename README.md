@@ -1,5 +1,5 @@
-plex-ssl
-========
+#**plex-ssl**
+--------------
 
 A guide to using NGINX to secure Plex via SSL.
 
@@ -9,9 +9,68 @@ This guide is based on all the hard work by **jkiel** (https://forums.plex.tv/in
 
 The post by **Fmstrat** (https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members here: https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/
 
+This guide was developed for **Ubuntu Server 14.04 LTS** and **CentOS 6.5** with **EPEL** enabled.
+
+#**Ubuntu Server 14.04 LTS**
+--------------
+
+The Ubuntu configuration guide assumes the following:
+- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.  No LAMP.  
+- Your Plex Media Server (PMS) may be installed on a different machine.
+
+For the sake of this guide, the following settings are used:
+- PMS:  Your Plex Media Server(s)
+- proxy-vm:  The machine you're creating with this guide 
+- Internal  hostname: *pms-vm*
+- Internal PMS IP: *192.168.0.10*
+- External hostname: *my.externalhost.com*
+- External port: *33443*
+
+
+Installing Nginx
+--------------
+
+To install nginx with lua simple enter:
+```
+sudo apt-get install nginx-extras
+```
+
+Configuring the Proxies
+--------------
+
+
+
+
+
+Setup your firewall
+--------------
+
+Use the following port forwarding options on your firewall.
+- External port 33443 -> proxy-vm:33443
+
+
+
+Edit your hosts file (Move to end)
+--------------
+
+To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make PMS beleive this proxy is acutally plex.tv.
+
+
+ 
+
+
+
+
+#**CentOS 6.5 with EPEL enabled**
+--------------
+
+To enable EPEL in CentOS 6.5, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
+
+The guide is written in a way that users of other distributions should be able to follow along as well.
+
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
-- Internal PMS IP: *192.168.3.207*
+- Internal PMS IP: *192.168.0.10*
 - External hostname: *my.externalhost.com*
 - External port: *33443*
 
@@ -46,13 +105,14 @@ Now, configure Plex:
 Edit your hosts file
 --------------
 
-To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost.
+To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost, and provide another hostname for the real plex.tv IP for outbound contact.
 
 ```
 [root@pms-vm ~]# vi /etc/hosts
 ```
 And add:
 ```
+184.169.179.97 realplex.tv
 192.168.3.207	plex.tv
 ```
 
@@ -121,11 +181,7 @@ At this point, you should place your external, valid certificate and key here. W
 Install nginx
 --------------
 
-**CentOS and RHEL variants**
-
-It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
-
-Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
+In Ubuntu, this os as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/
 
 ```
 [root@pms-vm external]# yum install gcc pcre-devel openssl-devel
@@ -142,10 +198,8 @@ Unfortunately, CentOS does not have a preconfigured nginx with lua available, ev
 Now we need to configure nginx. First, backup the original configuration and edit the file:
 ```
 [root@pms-vm ngx_openresty-1.7.0.1]# cd
-[root@pms-vm ~]# cd /usr/local/openresty/nginx/conf/
-[root@pms-vm conf]# mv nginx.conf nginx.conf.orig
-[root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/centos/nginx.conf
-[root@pms-vm conf]# vi nginx.conf
+[root@pms-vm ~]# cp /usr/local/openresty/nginx/conf/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf.orig
+[root@pms-vm ~]# vi /usr/local/openresty/nginx/conf/nginx.conf
 ```
 
 Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
@@ -164,30 +218,6 @@ And if everything is OK, start up nginx and restart PMS:
 ```
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
-
-**Ubuntu and Ubuntu variants**
-
-Install nginx with LUA support:
-```
-~# apt-get install nginx nginx-extras
-```
-
-Download the Ubuntu config files into the conf.d directory:
-```
-~# cd /etc/nginx/conf.d
-conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/plex.tv.proxy
-conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/pms.https.proxy
-conf.d# vi plex.tv.proxy pms.https.proxy
-```
-Edit these files to suit your needs, making sure you replace the external hostname and two occurances of your internal IP.
-
-Start nginx and set it to start on boot, then restart PMS:
-```
-~# service nginx start
-~# chkconfig nginx on
-~# service plexmediaserver restart
-```
-
 
 Known problems
 --------------
