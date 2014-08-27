@@ -221,7 +221,7 @@ And if everything is OK, start up nginx and restart PMS:
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
 
-Known problems
+#**Known problems**
 --------------
 
 The following is a list of known issues thus far:
