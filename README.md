@@ -9,7 +9,7 @@ This guide is based on all the hard work by **jkiel** (https://forums.plex.tv/in
 
 The post by **Fmstrat** (https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members here: https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/
 
-This guide was developed for **Ubuntu Server 14.04 LTS** and **CentOS 6.5** with **EPEL** enabled.
+This guide was developed for **Ubuntu Server 14.04 LTS** and **CentOS and RHEL variants**.
 
 #**Ubuntu Server 14.04 LTS**
 --------------
@@ -23,12 +23,13 @@ WORKING ON NEW CONTENT
 
 
 
-#**CentOS 6.5 with EPEL enabled**
+#**CentOS and RHEL variants**
 --------------
 
-To enable EPEL in CentOS 6.5, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/
+-It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
+-
+-Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
-The guide is written in a way that users of other distributions should be able to follow along as well.
 
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
