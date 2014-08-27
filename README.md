@@ -32,7 +32,7 @@ The guide is written in a way that users of other distributions should be able t
 
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
-- Internal PMS IP: *192.168.0.10*
+- Internal PMS IP: *192.168.3.207*
 - External hostname: *my.externalhost.com*
 - External port: *33443*
 
@@ -67,7 +67,7 @@ Now, configure Plex:
 Edit your hosts file
 --------------
 
-To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost, and provide another hostname for the real plex.tv IP for outbound contact.
+To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost.
 
 ```
 [root@pms-vm ~]# vi /etc/hosts
