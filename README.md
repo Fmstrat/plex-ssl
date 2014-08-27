@@ -123,7 +123,9 @@ At this point, you should place your external, valid certificate and key here. W
 Install nginx
 --------------
 
-In Ubuntu, this could be as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
+**CentOS and RHEL variants**
+
+Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
 ```
 [root@pms-vm external]# yum install gcc pcre-devel openssl-devel
@@ -160,6 +162,29 @@ And if everything is OK, start up nginx and restart PMS:
 ```
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
+
+**Ubuntu and Ubuntu variants**
+
+Install nginx with LUA support:
+```
+~# apt-get install nginx nginx-extras
+```
+
+Download the Ubuntu config files into the conf.d directory:
+```
+~# cd /etc/nginx/conf.d
+conf.d# wget <FILE>
+conf.d# wget <FILE>
+```
+Edit these files to suit your needs, making sure you replace the external hostname and two occurances of your internal IP.
+
+Start nginx and set it to start on boot, then restart PMS:
+```
+~# service nginx start
+~# chkconfig nginx on
+~# service plexmediaserver restart
+```
+
 
 Known problems
 --------------
