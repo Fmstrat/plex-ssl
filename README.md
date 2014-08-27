@@ -177,7 +177,7 @@ Download the Ubuntu config files into the conf.d directory:
 ~# cd /etc/nginx/conf.d
 conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/plex.tv.proxy
 conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/pms.https.proxy
-conf.d# vi nginx.conf
+conf.d# vi plex.tv.proxy pms.https.proxy
 ```
 Edit these files to suit your needs, making sure you replace the external hostname and two occurances of your internal IP.
 
