@@ -18,46 +18,8 @@ The Ubuntu configuration guide assumes the following:
 - That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.  No LAMP.  
 - Your Plex Media Server (PMS) may be installed on a different machine.
 
-For the sake of this guide, the following settings are used:
-- PMS:  Your Plex Media Server(s)
-- proxy-vm:  The machine you're creating with this guide 
-- Internal  hostname: *pms-vm*
-- Internal PMS IP: *192.168.0.10*
-- External hostname: *my.externalhost.com*
-- External port: *33443*
 
-
-Installing Nginx
---------------
-
-To install nginx with lua simple enter:
-```
-sudo apt-get install nginx-extras
-```
-
-Configuring the Proxies
---------------
-
-
-
-
-
-Setup your firewall
---------------
-
-Use the following port forwarding options on your firewall.
-- External port 33443 -> proxy-vm:33443
-
-
-
-Edit your hosts file (Move to end)
---------------
-
-To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make PMS beleive this proxy is acutally plex.tv.
-
-
- 
-
+WORKING ON NOW CONTENT
 
 
 
