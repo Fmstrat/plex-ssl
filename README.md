@@ -48,14 +48,13 @@ Now, configure Plex:
 Edit your hosts file
 --------------
 
-To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost, and provide another hostname for the real plex.tv IP for outbound contact.
+To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost.
 
 ```
 [root@pms-vm ~]# vi /etc/hosts
 ```
 And add:
 ```
-184.169.179.97 realplex.tv
 192.168.3.207	plex.tv
 ```
 
@@ -124,7 +123,7 @@ At this point, you should place your external, valid certificate and key here. W
 Install nginx
 --------------
 
-In Ubuntu, this could be as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/
+In Ubuntu, this could be as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
 ```
 [root@pms-vm external]# yum install gcc pcre-devel openssl-devel
