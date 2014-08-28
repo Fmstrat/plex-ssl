@@ -53,6 +53,14 @@ On any PMS server's you'll be secure proxying for, you will need to:
 - Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
 - [Enable Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server!  This is VERY IMPORTANT.  The secure reverse proxy will make PMS think that ALL traffic from the proxy is local!
 
+You'll find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in /opt/plex-ssl/certs.
+
+ 
+Manual configuration
+--------------
+
+You can look through the detailed instructions for CentOS and RHEL below to get an idea of what you'll need to do.  Use 'sudo apt-get install nginx-extras' to install nginx with LUA.
+
 
 #**CentOS and RHEL variants**
 --------------
