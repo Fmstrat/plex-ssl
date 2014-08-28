@@ -44,7 +44,7 @@ The Ubuntu configuration guide assumes the following:
 Option 1: Use the configuration script
 --------------
 
-**The below script assumes you will be using StartSSL or similar provider and that you do not already have a certificate in your possession.** If you wish to configure your system in a unique way, or already have a validated certificate to use externally, please follow the guide for [Option 2: Manual configuration](#Option-2:-Manual-configuration) or follow the steps inside the configuration scripts manually.
+**The below script assumes you will be using StartSSL or similar provider and that you do not already have a certificate in your possession.** If you wish to configure your system in a unique way, or already have a validated certificate to use externally, please follow the guide for [Option 2: Manual configuration](#option-2-manual-configuration) or follow the steps inside the configuration scripts manually.
 
 Run the script
 --------------
