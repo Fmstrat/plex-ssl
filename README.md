@@ -250,7 +250,7 @@ Now we need to configure nginx. First, backup the original configuration and edi
 [root@pms-vm ngx_openresty-1.7.0.1]# cd
 [root@pms-vm ~]# cd /usr/local/openresty/nginx/conf/
 [root@pms-vm conf]# mv nginx.conf nginx.conf.orig
-[root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/centos/nginx.conf
+[root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/centos/conf/nginx.conf
 [root@pms-vm conf]# vi nginx.conf
 ```
 
