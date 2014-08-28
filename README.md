@@ -29,6 +29,8 @@ For proxying between Plex Media Server and Plex.tv, we will create a self signed
 
 For proxying between clients and Plex Media Server, we will require a "trusted" certificate in the form of a valid, purchased certificate from companies like RapidSSL, or a free certificate from companies like StartSSL. Free certificates do not generally work with all clients, but in testing, StartSSL certificates have been proven to function in the scenarios detailed in this guide.
 
+*You must also own the domain name used to host your PMS. Free domains names from dyn.org, noip.com and the like will not work. Your email address won't be one of the administrative/authoritative ones listed in the WHOIS record for the domain.*
+
 #**Ubuntu Server 14.04 LTS**
 --------------
 
