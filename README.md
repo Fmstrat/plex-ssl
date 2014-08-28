@@ -22,8 +22,8 @@ For the sake of this guide, the following settings are used:
 #**Before you begin: Certificates**
 --------------
 This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
-- *Plex Media Server -> Plex.tv:* Intercepting the call to Plex.tv that tells Plex.tv to inform clients of the machines IP address, and instead supplies a hostname and the schema of HTTPS. This way, Plex.tv tells clients to connect securely.
-- *Clients -> Plex Media Server:* Proxying all traffic from the clients to Plex Media Server using SSL. It is required to use a proxy because we need to supply a validated certificate for our host, not the general plex.tv certificate that is included with Plex Media Server
+- **Plex Media Server -> Plex.tv:** Intercepting the call to Plex.tv that tells Plex.tv to inform clients of the machines IP address, and instead supplies a hostname and the schema of HTTPS. This way, Plex.tv tells clients to connect securely.
+- **Clients -> Plex Media Server:** Proxying all traffic from the clients to Plex Media Server using SSL. It is required to use a proxy because we need to supply a validated certificate for our host, not the general plex.tv certificate that is included with Plex Media Server
 
 For proxying between Plex Media Server and Plex.tv, we will create a self signed certificate, and add it to the trusted certificates for Plex Media Server.
 
