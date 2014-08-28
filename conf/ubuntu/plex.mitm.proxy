@@ -18,8 +18,8 @@ server {
     server_name plex.tv;
 
     ssl on;
-    ssl_certificate /usr/local/nginx/conf/mitm.pem;
-    ssl_certificate_key /usr/local/nginx/conf/mitm.key;
+    ssl_certificate /etc/ssl/certs/ssl-plex/mitm.pem;
+    ssl_certificate_key /etc/ssl/certs/ssl-plex/mitm.key;
     ssl_session_cache shared:SSL:10m;
 
     location @proxy {
