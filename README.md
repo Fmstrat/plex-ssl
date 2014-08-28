@@ -13,31 +13,45 @@ This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-l
 
 Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
+For the sake of this guide, the following settings are used:
+- Internal PMS hostname: *pms-vm*
+- Internal PMS IP: *192.168.3.207*
+- External hostname: *my.externalhost.com*
+- External port: *33443*
+
+#**Before you begin: Certificates**
+--------------
+This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
+- *Plex Media Server -> Plex.tv:* Intercepting the call to Plex.tv that tells Plex.tv to inform clients of the machines IP address, and instead supplies a hostname and the schema of HTTPS. This way, Plex.tv tells clients to connect securely.
+- *Clients -> Plex Media Server:* Proxying all traffic from the clients to Plex Media Server using SSL. It is required to use a proxy because we need to supply a validated certificate for our host, not the general plex.tv certificate that is included with Plex Media Server
+
+For proxying between Plex Media Server and Plex.tv, we will create a self signed certificate, and add it to the trusted certificates for Plex Media Server.
+
+For proxying between clients and Plex Media Server, we will require a "trusted" certificate in the form of a valid, purchased certificate from companies like RapidSSL, or a free certificate from companies like StartSSL. Free certificates do not generally work with all clients, but in testing, StartSSL certificates have been proven to function in the scenarios detailed in this guide.
+
 #**Ubuntu Server 14.04 LTS**
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.
-- No other servies have been installed on Ubuntu, except openssh-server.
-- Your Plex Media Server (PMS) may be installed on a different machine.
+- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed
+- No other services have been installed on Ubuntu, except openssh-server
+- Your Plex Media Server (PMS) can be installed on the same system, or may be installed on a different machine
 
 
-Use the configuration tool
+Option 1: Use the configuration script
 --------------
 
-The configuration script should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
+The configuration script supplied should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
 
 ```
-cd ~
-
-wget https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
-
-sudo bash setup-ubuntu.sh
+~# cd ~
+~# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/setup-ubuntu.sh
+~# sudo bash setup-ubuntu.sh
 ```
 
 ####Notes on Certificates
 
-During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It'll ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
+The above script assumes you will be using StartSSL or similar provider. If you wish to configure your system in a unique way, follow the guide for [Option 2: Manual configuration](#Option-2:-Manual-configuration). During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It will ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
 
 You'll be asked copy out a Certificate Signing Request (CSR) and paste it to your chosen CA.  After your CA approves and returns a Signed Certificate,  you'll need to paste that Signed Certificate back to the script. 
 
@@ -60,7 +74,7 @@ You must close/remove/block any non HTTPS ports on your firewall and/or router t
 You'll find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in **/opt/plex-ssl/certs**.
 
  
-Manual configuration
+Option 2: Manual configuration
 --------------
 
 You can look through the detailed instructions for CentOS and RHEL below to get an idea of what you'll need to do.  Use 'sudo apt-get install nginx-extras' to install nginx with LUA.
@@ -72,12 +86,6 @@ It is recommended you enable EPEL in CentOS. To do this, please visit this guide
 
 Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
-
-For the sake of this guide, the following settings are used:
-- Internal PMS hostname: *pms-vm*
-- Internal PMS IP: *192.168.3.207*
-- External hostname: *my.externalhost.com*
-- External port: *33443*
 
 Setup your firewall
 --------------
