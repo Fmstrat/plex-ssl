@@ -11,6 +11,8 @@ The post by **Fmstrat** (https://forums.plex.tv/index.php/user/188868-fmstrat/) 
 
 This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu) and [**CentOS and RHEL variants**](#centos).
 
+Please have a look over the [Known Problems](#problems) before you decide to use this.
+
 <a name="ubuntu"></a>
 #**Ubuntu Server 14.04 LTS**
 --------------
@@ -223,6 +225,7 @@ And if everything is OK, start up nginx and restart PMS:
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
 
+<a name="problems"></a>
 #**Known problems**
 --------------
 
