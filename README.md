@@ -84,8 +84,7 @@ Then set permissions and integrate into PMS:
 ```
 ~# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
 ```
-** -=-=- DO WE NEED THIS??? -=-=- **
-- Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
+**NOTE:** If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplextv.cer" file. Failure to do this will result in SSL errors in the browser due to running through the nginx proxy. If you do NOT wish to access https://plex.tv in browsers or commands on the PMS system, this step is not necessary.
 
 Set up Plex
 --------------
@@ -228,6 +227,7 @@ At this point, you should place your external, valid certificate and key here. W
 [root@pms-vm external]# cat external.cer >> external.bundle.cer
 [root@pms-vm external]# chmod 600 *
 ```
+**NOTE:** If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list. Failure to do this will result in SSL errors in the browser due to running through the nginx proxy. If you do NOT wish to access https://plex.tv in browsers or commands on the PMS system, this step is not necessary.
 
 Install nginx
 --------------
