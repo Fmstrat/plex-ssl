@@ -19,8 +19,16 @@ The Ubuntu configuration guide assumes the following:
 - Your Plex Media Server (PMS) may be installed on a different machine.
 
 
-WORKING ON NEW CONTENT
+Use the configuration tool
+--------------
 
+In an Ubuntu terminal/ssh session, enter these three lines, then follow the instructions:
+
+```
+~
+wget -O setup-ubuntu.sh https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
+sudo bash setup-ubuntu.sh
+```
 
 
 #**CentOS and RHEL variants**
