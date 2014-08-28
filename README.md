@@ -25,7 +25,7 @@ Internal PMS IP         |*192.168.3.207*      |Replace with IP of your Plex Medi
 Internal NGINX hostname |*nginx-vm*           |The NGINX proxy you're configuring
 Internal NGINX IP       |*192.168.3.50*       |Replace with IP of the NGINX proxy you're configuring
 External hostname       |*my.externalhost.com*|The domain name you'll be using to access PMS server(s) securely
-External port           |*3x443*              |The HTTPS port(s) your firewall will forward to NGINX
+External port           |*32443*              |The HTTPS port(s) your firewall will forward to NGINX
 
 #**Before you begin: Certificates**
 --------------
@@ -68,8 +68,20 @@ You'll be asked copy out a Certificate Signing Request (CSR) and paste it to you
 
 At the end, the script will return a self signed certificate that's used to proxy plex.tv. You can find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in **/opt/plex-ssl/certs**.
 
-Integrate the certificate into Plex
+Integrate proxy certificate into Plex Media Server(s)
 --------------
+
+After you've completed every step of this configuration, your PMS server will route all traffic destined for plex.tv through the NGINX proxy.  This will not succeed until the self signed certificate is installed on every local PMS server that you're securing. 
+
+This involves two steps.  Installing the certificate in PMS, and installing as a trusted certificate in operating system PMS is running on.
+
+Getting the certificate.
+
+You can download the certificate from http://nginx-vm:8088/ssl-plex/mitm.cer  (replace nginx-vm with its IP address)
+
+To install in PMS:
+
+ 
 
 Then set permissions and integrate into PMS:
 ```
