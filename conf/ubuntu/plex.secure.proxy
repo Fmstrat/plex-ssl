@@ -11,8 +11,8 @@ server {
     gzip_vary        on;
 
     ssl on;
-    ssl_certificate /usr/local/nginx/conf/server.pem;
-    ssl_certificate_key /usr/local/nginx/conf/server.key;
+    ssl_certificate /etc/ssl/certs/ssl-plex/proxy.pem;
+    ssl_certificate_key /etc/ssl/certs/ssl-plex/proxy.key;
     ssl_session_cache shared:SSL:10m;
 
     # if port was accessed as http redirect https
