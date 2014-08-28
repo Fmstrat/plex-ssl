@@ -25,8 +25,10 @@ Use the configuration tool
 In an Ubuntu terminal/ssh session, enter these three lines, then follow the instructions:
 
 ```
-~
+cd ~
+
 wget -O setup-ubuntu.sh https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
+
 sudo bash setup-ubuntu.sh
 ```
 
@@ -83,7 +85,6 @@ To fake PMS into connecting to your proxy, and to route all traffic from the int
 ```
 And add:
 ```
-184.169.179.97 realplex.tv
 192.168.3.207	plex.tv
 ```
 
