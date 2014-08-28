@@ -27,7 +27,8 @@ This method of securing Plex works by proxying connections between Plex Media Se
 
 For proxying between Plex Media Server and Plex.tv, we will create a self signed certificate, and add it to the trusted certificates for Plex Media Server.
 
-For proxying between clients and Plex Media Server, we will require a "trusted" certificate in the form of a valid, purchased certificate from companies like RapidSSL, or a free certificate from companies like StartSSL. Free certificates do not generally work with all clients, but in testing, StartSSL certificates have been proven to function in the scenarios detailed in this guide.
+For proxying between clients and Plex Media Server, we will require a "trusted" certificate in the form of a valid, purchased certificate from companies like RapidSSL, or a free certificate from companies like StartSSL. Free certificates do not generally work with all clients, but in testing, StartSSL certificates have been proven to function in the scenarios detailed in this guide. [StartSSL.com](https://www.startssl.com/) is the only CA known to have [free certificates](https://www.startssl.com/?app=1) that also have relativly broad browser support.
+
 
 *You must also own the domain name used to host your PMS. Free domains names from dyn.org, noip.com and the like will not work. Your email address won't be one of the administrative/authoritative ones listed in the WHOIS record for the domain.*
 
@@ -43,6 +44,10 @@ The Ubuntu configuration guide assumes the following:
 Option 1: Use the configuration script
 --------------
 
+**The below script assumes you will be using StartSSL or similar provider and that you do not already have a certificate in your possession.** If you wish to configure your system in a unique way, or already have a validated certificate to use externally, please follow the guide for [Option 2: Manual configuration](#Option-2:-Manual-configuration) or follow the steps inside the configuration scripts manually.
+
+Run the script
+--------------
 The configuration script supplied should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
 
 ```
@@ -51,30 +56,59 @@ The configuration script supplied should do most of the hard work for you.  In a
 ~# sudo bash setup-ubuntu.sh
 ```
 
-####Notes on Certificates
+During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It will ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
 
-The above script assumes you will be using StartSSL or similar provider. If you wish to configure your system in a unique way, follow the guide for [Option 2: Manual configuration](#Option-2:-Manual-configuration). During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It will ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
+You'll be asked copy out a Certificate Signing Request (CSR) and paste it to your chosen CA.  After your CA approves and returns a Signed Certificate,  you will need to paste that Signed Certificate back to the script. 
 
-You'll be asked copy out a Certificate Signing Request (CSR) and paste it to your chosen CA.  After your CA approves and returns a Signed Certificate,  you'll need to paste that Signed Certificate back to the script. 
+At the end, the script will return a self signed certificate that's used to proxy plex.tv. You can find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in **/opt/plex-ssl/certs**.
 
-[StartSSL.com](https://www.startssl.com/) is the only CA known to have [free certificates](https://www.startssl.com/?app=1) that also have relativly broad browser support.
 
-At the end, the script will return a self signed certificate that's used to proxy plex.tv.
+Edit your hosts file
+--------------
 
-####DON'T FORGET!
+To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost.
 
-After configuration is complete, there are still some important steps left!
+```
+~# vi /etc/hosts
+```
+And add:
+```
+192.168.3.207	plex.tv
+```
 
-On any PMS servers you'll be secure proxying for, you will need to:
-- [Modify the hosts](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file) file on your PMS server's OS, adding '[ip address of ubuntu proxy server] plex.tv'.  (This is used to force PMS servers to tell plex.tv to use HTTPS and your domain name instead HTTP and your ip address.)
-- Add the self signed certificate, returned at the end of the configuration script, to the end of your PMS server's cacerts.pem file.  You'll find this in your PMS server's installation folder.
+Integrate the certificate into Plex
+--------------
+
+Then set permissions and integrate into PMS:
+```
+[root@pms-vm mitm]# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
+```
+** -=-=- DO WE NEED THIS??? -=-=- **
 - Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
-- [Enable Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server!  This is VERY IMPORTANT.  The secure reverse proxy will make PMS think that ALL traffic from the proxy is local!
+
+Set up Plex
+--------------
+
+Now, configure Plex:
+- Visit: http://pms-vm:32400/web/index.html#!/settings/server
+- Goto **Connect**, sign in to Plex
+- Click **SHOW ADVANCED**
+- Check **Manually specify port**
+- Fill in 33443
+- Check **Require authentication on local networks**
+- Lastly, add media to your library
+
+[Enabling Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server is VERY IMPORTANT.  The secure reverse proxy will make PMS think that all traffic from the proxy is local if you do not.
+
+
+
+Setup your firewall
+--------------
+
+Use the following port forwarding options on your firewall.
+- External port 33443 -> pms-vm:33443
 
 You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
-
-You'll find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in **/opt/plex-ssl/certs**.
-
  
 Option 2: Manual configuration
 --------------
@@ -95,6 +129,7 @@ Setup your firewall
 Use the following port forwarding options on your firewall.
 - External port 33443 -> pms-vm:33443
 
+You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
 
 Download and install Plex
 --------------
@@ -116,6 +151,7 @@ Now, configure Plex:
 - Check **Require authentication on local networks**
 - Lastly, add media to your library
 
+[Enabling Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server is VERY IMPORTANT.  The secure reverse proxy will make PMS think that all traffic from the proxy is local if you do not.
 
 Edit your hosts file
 --------------
