@@ -1,3 +1,5 @@
+# Man in The Middle Proxy for securing PMS publications to plex.tv
+
 server {
 
     listen 80;
@@ -16,13 +18,13 @@ server {
     server_name plex.tv;
 
     ssl on;
-    ssl_certificate /usr/local/nginx/conf/mitm.pem;
-    ssl_certificate_key /usr/local/nginx/conf/mitm.key;
+    ssl_certificate /opt/ssl-plex/certs/mitm.pem;
+    ssl_certificate_key /opt/ssl-plex/certs/mitm.key;
     ssl_session_cache shared:SSL:10m;
 
     location @proxy {
         proxy_pass https://www.plex.tv;
-        proxy_set_header Host $host:$server_port;
+        proxy_set_header Host plex.tv;
     }
 
     location ~ "(.*)servers.xml(.*)" {

@@ -1,5 +1,5 @@
-plex-ssl
-========
+#**plex-ssl**
+--------------
 
 A guide to using NGINX to secure Plex via SSL.
 
@@ -8,6 +8,70 @@ A guide to using NGINX to secure Plex via SSL.
 This guide is based on all the hard work by **jkiel** (https://forums.plex.tv/index.php/user/91991-jkiel/) by tracing the HTTP/S requests between PMS, Plex.tv, and clients. His work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team is working on a more permanent solution.
 
 The post by **Fmstrat** (https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members here: https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/
+
+This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-lts) and [**CentOS and RHEL variants**](#centos-and-rhel-variants).
+
+Please have a look over the [Known Problems](#known-problems) before you decide to use this.
+
+#**Ubuntu Server 14.04 LTS**
+--------------
+
+The Ubuntu configuration guide assumes the following:
+- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.
+- No other servies have been installed on Ubuntu, except openssh-server.
+- Your Plex Media Server (PMS) may be installed on a different machine.
+
+
+Use the configuration tool
+--------------
+
+The configuration script should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
+
+```
+cd ~
+
+wget https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
+
+sudo bash setup-ubuntu.sh
+```
+
+####Notes on Certificates
+
+During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It'll ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
+
+You'll be asked copy out a Certificate Signing Request (CSR) and paste it to your chosen CA.  After your CA approves and returns a Signed Certificate,  you'll need to paste that Signed Certificate back to the script. 
+
+[StartSSL.com](https://www.startssl.com/) is the only CA known to have [free certificates](https://www.startssl.com/?app=1) that also have relativly broad browser support.
+
+At the end, the script will return a self signed certificate that's used to proxy plex.tv.
+
+####DON'T FORGET!
+
+After configuration is complete, there are still some important steps left!
+
+On any PMS servers you'll be secure proxying for, you will need to:
+- [Modify the hosts](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file) file on your PMS server's OS, adding '[ip address of ubuntu proxy server] plex.tv'.  (This is used to force PMS servers to tell plex.tv to use HTTPS and your domain name instead HTTP and your ip address.)
+- Add the self signed certificate, returned at the end of the configuration script, to the end of your PMS server's cacerts.pem file.  You'll find this in your PMS server's installation folder.
+- Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
+- [Enable Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server!  This is VERY IMPORTANT.  The secure reverse proxy will make PMS think that ALL traffic from the proxy is local!
+
+You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
+
+You'll find the certs and keys used by the secure and mitm proxy on your ubuntu proxy server in **/opt/plex-ssl/certs**.
+
+ 
+Manual configuration
+--------------
+
+You can look through the detailed instructions for CentOS and RHEL below to get an idea of what you'll need to do.  Use 'sudo apt-get install nginx-extras' to install nginx with LUA.
+
+#**CentOS and RHEL variants**
+--------------
+
+It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
+
+Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
+
 
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
@@ -121,11 +185,7 @@ At this point, you should place your external, valid certificate and key here. W
 Install nginx
 --------------
 
-**CentOS and RHEL variants**
-
-It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
-
-Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
+In Ubuntu, this os as easy as installing the nginx and nginx-lua packages, but CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/
 
 ```
 [root@pms-vm external]# yum install gcc pcre-devel openssl-devel
@@ -165,32 +225,11 @@ And if everything is OK, start up nginx and restart PMS:
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
 
-**Ubuntu and Ubuntu variants**
-
-Install nginx with LUA support:
-```
-~# apt-get install nginx nginx-extras
-```
-
-Download the Ubuntu config files into the conf.d directory:
-```
-~# cd /etc/nginx/conf.d
-conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/plex.tv.proxy
-conf.d# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/unbuntu/pms.https.proxy
-conf.d# vi plex.tv.proxy pms.https.proxy
-```
-Edit these files to suit your needs, making sure you replace the external hostname and two occurances of your internal IP.
-
-Start nginx and set it to start on boot, then restart PMS:
-```
-~# service nginx start
-~# chkconfig nginx on
-~# service plexmediaserver restart
-```
-
-
-Known problems
+#**Known problems**
 --------------
 
 The following is a list of known issues thus far:
-- Due to Plex.tv's use of unsecure Web Sockets, using the plex.tv host will still attempt to communicate via HTTP. This should not be an security issue for external hosts if no HTTP ports are open, as the vulnerable token would not be transmitted until a connection is established, but it does create problems with functionality.
+
+1. Due to Plex Web's forced use of unsecure Web Sockets (ws:), instead of secure Web Sockets (wss:), Plex Web will still attempt to communicate via HTTP.  If accessed via plex.tv, this could be a security issue since the Plex Web delivered by plex.tv is on http, not https, allowing the insecure web socket to attempt connection. If Plex Web is used by directly accessing your secure domain, the connection will be https, and the insecure websocket connection attempts will be blocked by the browser.  Lack of web sockets impeads the functionality of Plex Web.
+2. Javascript on plex.tv will try to validate that a server is online or offline by requesting an image from the PMS server.  Unfortunatley, it requests that image over http instead of https.  To get around this, the secure proxy will detect the improper http resquest to an https port and forward it to an https request, but this has the side effect of potentialy opening up the security issue pointed out in issue #1.  A token could be exposed.
+3. Plex Media Server detects if a client is local or not by checking the client's IP address.  When using the secure reverse proxy, PMS will see the reverse proxy's IP address and assume the connection is local.  **You must turn on "Local network authentication" in PMS, else remote users could log in without authentication.**  Hopefully PMS will be updated to detect proxy use by looking at the request header for the client, and then mark any connection via proxy as non-local, but until then, BE CAREFUL!
