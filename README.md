@@ -82,7 +82,7 @@ Edit your hosts file
 
 To trick PMS into connecting to your NGINX proxy, so NGINX can intrstruct plex.tv to route all traffic from remote clients securly back to NGINX and then on to PMS, we must make your PMS server(s) beleive that the NGINX proxy is plex.tv.
 
-[Edit your *hosts* file](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file)
+<a href="http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file" target="_blank">Edit your *hosts* file</a>
 And add (replacing 192.168.3.50 with your NGINX server):
 ```
 192.168.3.50	plex.tv
