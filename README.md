@@ -41,13 +41,11 @@ For proxying between clients and Plex Media Server, we will require a "trusted" 
 The Ubuntu configuration guide assumes the following:
 - That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed
 - No other services have been installed on Ubuntu, except openssh-server
-- Your Plex Media Server (PMS) can be installed on the same system, or may be installed on a different machine
-
 
 Option 1: Use the configuration script
 --------------
 
-**The below script assumes you will be using StartSSL or similar provider and that you do not already have a certificate in your possession.** If you wish to configure your system in a unique way, or already have a validated certificate to use externally, please follow the guide for [Option 2: Manual configuration](#option-2-manual-configuration) or follow the steps inside the configuration scripts manually.
+**The below script assumes you will be using StartSSL or similar provider.** If you already have a validated certificate, you will be asked during the script to use it or create a new one. If you wish to configure your system in a unique way beyond what the script handles, please follow the guide for [Option 2: Manual configuration](#option-2-manual-configuration) or follow the steps inside the configuration scripts manually.
 
 Run the script
 --------------
