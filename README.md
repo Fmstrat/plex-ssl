@@ -254,9 +254,6 @@ Now we need to configure nginx. First, backup the original configuration and edi
 [root@pms-vm conf]# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/centos/conf/nginx.conf
 [root@pms-vm conf]# vi nginx.conf
 ```
-
-Then replace the contents of that file with the file located here: https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/conf/nginx.conf
-
 Make sure you replace the external hostname and two occurances of your internal IP.
 
 Test the configuration with:
