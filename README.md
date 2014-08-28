@@ -81,7 +81,7 @@ Integrate the certificate into Plex
 
 Then set permissions and integrate into PMS:
 ```
-[root@pms-vm mitm]# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
+~# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
 ```
 ** -=-=- DO WE NEED THIS??? -=-=- **
 - Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
