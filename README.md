@@ -49,7 +49,7 @@ At the end, the script will return a self signed certificate that's used to prox
 
 After configuration is complete, there are still some important steps left!
 
-On any PMS server's you'll be secure proxying for, you will need to:
+On any PMS servers you'll be secure proxying for, you will need to:
 - [Modify the hosts](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file) file on your PMS server's OS, adding '[ip address of ubuntu proxy server] plex.tv'.  (This is used to force PMS servers to tell plex.tv to use HTTPS and your domain name instead HTTP and your ip address.)
 - Add the self signed certificate, returned at the end of the configuration script, to the end of your PMS server's cacerts.pem file.  You'll find this in your PMS server's installation folder.
 - Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
