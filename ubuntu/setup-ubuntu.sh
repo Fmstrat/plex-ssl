@@ -7,8 +7,8 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-github="https://raw.githubusercontent.com/JohnKiel/plex-ssl/master"
-confpath="/conf/ubuntu"
+github="https://raw.githubusercontent.com/Fmstrat/plex-ssl/master"
+confpath="/ubuntu/conf"
 nginx="/etc/nginx"
 certs="/opt/ssl-plex/certs"
 
