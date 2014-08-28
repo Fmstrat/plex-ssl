@@ -11,8 +11,8 @@ server {
     gzip_vary        on;
 
     ssl on;
-    ssl_certificate /etc/ssl/certs/ssl-plex/proxy.pem;
-    ssl_certificate_key /etc/ssl/certs/ssl-plex/proxy.key;
+    ssl_certificate /opt/ssl-plex/certs/proxy.pem;
+    ssl_certificate_key /opt/ssl-plex/certs/proxy.key;
     ssl_session_cache shared:SSL:10m;
 
     # if port was accessed as http redirect https
