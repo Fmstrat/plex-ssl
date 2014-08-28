@@ -9,11 +9,10 @@ This guide is based on all the hard work by **jkiel** (https://forums.plex.tv/in
 
 The post by **Fmstrat** (https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members here: https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/
 
-This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu) and [**CentOS and RHEL variants**](#centos).
+This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-lts) and [**CentOS and RHEL variants**](#centos-and-rhel-variants).
 
-Please have a look over the [Known Problems](#problems) before you decide to use this.
+Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
-<a name="ubuntu"></a>
 #**Ubuntu Server 14.04 LTS**
 --------------
 
@@ -64,7 +63,6 @@ Manual configuration
 
 You can look through the detailed instructions for CentOS and RHEL below to get an idea of what you'll need to do.  Use 'sudo apt-get install nginx-extras' to install nginx with LUA.
 
-<a name="centos"></a>
 #**CentOS and RHEL variants**
 --------------
 
@@ -225,7 +223,6 @@ And if everything is OK, start up nginx and restart PMS:
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
 
-<a name="problems"></a>
 #**Known problems**
 --------------
 
