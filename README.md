@@ -15,14 +15,15 @@ This guide was developed for **Ubuntu Server 14.04 LTS** and **CentOS and RHEL v
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.  No LAMP.  
+- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.
+- No other servies have been installed on Ubuntu, except openssh-server.
 - Your Plex Media Server (PMS) may be installed on a different machine.
 
 
 Use the configuration tool
 --------------
 
-In an Ubuntu terminal/ssh session, enter these three lines, then follow the instructions:
+The configuration script should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
 
 ```
 cd ~
@@ -31,6 +32,26 @@ wget -O setup-ubuntu.sh https://raw.githubusercontent.com/JohnKiel/plex-ssl/mast
 
 sudo bash setup-ubuntu.sh
 ```
+
+####Notes on Certificates
+
+During configuration, you will be prompted for information used to generate a Certificate Signing Request (CSR).  It'll ask for country, state, city, common name (your domain name), pass phrase, etc. Before filling this out, check with your [chosen Certificate Authority (CA)](http://www.sslshopper.com/certificate-authority-reviews.html), to see what they require.
+
+You'll be asked copy out a Certificate Signing Request (CSR) and paste it to your chosen CA.  After your CA approves and returns a Signed Certificate,  you'll need to paste that Signed Certificate back to the script. 
+
+[StartSSL.com](https://www.startssl.com/) is the only CA known to have [free certificates](https://www.startssl.com/?app=1) that also have relativly broad browser support.
+
+At the end, the script will return a self signed certificate that's used to proxy plex.tv.
+
+####DON'T FORGET!
+
+After configuration is complete, there are still some important steps left!
+
+On any PMS server's you'll be secure proxying for, you will need to:
+- [Modify the hosts](http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file) file on your PMS server's OS, adding '[ip address of ubuntu proxy server] plex.tv'.  (This is used to force PMS servers to tell plex.tv to use HTTPS and your domain name instead HTTP and your ip address.)
+- Add the self signed certificate, returned at the end of the configuration script, to the end of your PMS server's cacerts.pem file.  You'll find this in your PMS server's installation folder.
+- Add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplaxtv.cer" file.
+- [Enable Local Network Authenticate](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server!  This is VERY IMPORTANT.  The secure reverse proxy will make PMS think that ALL traffic from the proxy is local!
 
 
 #**CentOS and RHEL variants**
