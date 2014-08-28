@@ -30,7 +30,7 @@ The configuration script should do most of the hard work for you.  In an Ubuntu 
 ```
 cd ~
 
-wget -O setup-ubuntu.sh https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
+wget https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/setup-ubuntu.sh
 
 sudo bash setup-ubuntu.sh
 ```
