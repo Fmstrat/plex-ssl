@@ -68,7 +68,7 @@ This involves two steps.  Installing the certificate in PMS, and installing as a
 #####Getting the certificate:
 
 You can copy the self signed certificate from the output of setup-ubuntu.sh and paste it into an empty file, or download the certificate from:
-http://[your NGINX server address]:8088/ssl-plex/mitm.cer
+http://[your NGINX server address]:8088/plex/certs/mitm.cer
 
 #####Installing in PMS:
 
