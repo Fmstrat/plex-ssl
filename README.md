@@ -128,9 +128,9 @@ Setup your firewall
 
 At the end of the setup-ubuntu.sh script, you will see an output like:
 ```
-TCP external:30443 TO <NGINX IP>:33443 (NGINX will forward to <PMS IP>:32400)
+TCP external:30443 TO <NGINX IP>:30443 (NGINX will forward to <PMS IP>:32400)
 ```
-You will see one line per PMS instance you have setup. These are the external port forwards you will need to create. If NGINX and PMS are installed ont he same machine, the IPs will be the same, but you should forward from your router to the NGINX IP.
+You will see one line per PMS instance you have setup. These are the external port forwards you will need to create. If NGINX and PMS are installed on the same machine, the IPs will be the same, but you should forward from your router to the NGINX IP.
 
 For instance, following the IP structure in this guide Use the following port forwarding options on your firewall.
 - External port 30443 -> &lt;NGINX HOST&gt;:30443
