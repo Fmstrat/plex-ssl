@@ -654,3 +654,14 @@ if [ $? -gt 0 ]; then
   echo "ERROR displaing MITM certificate"
     exit 1
 fi
+
+echo ""
+echo "Remember to add port mappings in your router for:"
+# loop over each PMS host
+# starting with port 30443 ($basesecureport), and incrementing by 1000 (30443, 31443, 32443, ...)
+index=0
+for pms_host in ${pms_hosts[@]}; do
+  pms_secureport=$((basesecureport+index*1000))
+  echo "TCP external:$pms_secureport TO $thishost:$pms_secureport (NGINX will forward to $pms_host:32400)"
+  ((index++))
+done
