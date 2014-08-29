@@ -97,7 +97,7 @@ Use <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-
 Edit your hosts file
 --------------
 
-To trick PMS into connecting to your NGINX proxy, so NGINX can intrstruct plex.tv to route all traffic from remote clients securly back to NGINX and then on to PMS, we must make your PMS server(s) beleive that the NGINX proxy is plex.tv.
+To trick PMS into connecting to your NGINX proxy, so NGINX can intrstruct plex.tv to route all traffic from remote clients securly back to NGINX and then on to PMS, we must make your PMS server(s) believe that the NGINX proxy is plex.tv.
 
 <a href="http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file" target="_blank">Edit your *hosts* file</a>
 And add (replacing 192.168.1.10 with your NGINX server's address):
@@ -108,7 +108,7 @@ And add (replacing 192.168.1.10 with your NGINX server's address):
 Set up Plex
 --------------
 
-At the end of the setup-ubuntu.sh script, your will see an output like:
+At the end of the setup-ubuntu.sh script, you will see an output like:
 ```
 Remember to add port mappings in your router for:
 TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
@@ -135,7 +135,7 @@ Now, for each PMS server:
 Setup your firewall
 --------------
 
-At the end of the setup-ubuntu.sh script, your will see an output like:
+At the end of the setup-ubuntu.sh script, you will see an output like:
 ```
 Remember to add port mappings in your router for:
 TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
