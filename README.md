@@ -96,7 +96,7 @@ On Windows, you can right click *Notepad*, select *Run as Administrator*, then o
 On Ubuntu, you can run the below as root:
 ```
 ~# sudo cp /usr/lib/plexmediaserver/Resources/cacert.pem /usr/lib/plexmediaserver/Resources/cacert.pem.orig
-~# sudo cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
+~# sudo cat mitm.cer >> /usr/lib/plexmediaserver/Resources/cacert.pem
 ```
 
 #####Installing in PMS's host OS
