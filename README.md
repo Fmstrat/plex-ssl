@@ -16,17 +16,6 @@ This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-l
 
 Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
-For the sake of this guide, the following settings are used:
-
-Function                |Value                |Description
-------------------------|---------------------|-------------
-Internal PMS hostname   |*pms-vm*             |Your Plex Media Server(s) (PMS)
-Internal PMS IP         |*192.168.3.207*      |Replace with IP of your Plex Media Server(s)
-Internal NGINX hostname |*nginx-vm*           |The NGINX proxy you're configuring
-Internal NGINX IP       |*192.168.3.50*       |Replace with IP of the NGINX proxy you're configuring
-External hostname       |*my.externalhost.com*|The domain name you'll be using to access PMS server(s) securely
-External port           |*32443*              |The HTTPS port(s) your firewall will forward to NGINX
-
 #**Before you begin: Certificates**
 --------------
 This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
@@ -78,12 +67,11 @@ This involves two steps.  Installing the certificate in PMS, and installing as a
 
 #####Getting the certificate:
 
-You can download the certificate from http://nginx-vm:8088/ssl-plex/mitm.cer
-*(replace "nginx-vm" with the IP address you've given it)*
+You can download the certificate from http://[your NGINX server address]:8088/ssl-plex/mitm.cer, or copy it from the output of the setup-ubuntu.sh and paste it into an empty file.
 
-#####Installing in PMS
+#####Installing in PMS:
 
-To install the certificate in PMS, you will need to append the contents of the certificate to PMS's cacerts.pem file.  We recomend that you make a copy of this file before modification.  Also note that you will need to repeate this step after updating PMS to a new version.
+To install the certificate in PMS, you will need to append the contents of the certificate to PMS's cacerts.pem file.  We recomend that you make a copy of this file before modification.  Also note that you will need to repeat this step after updating PMS to a new version.
 
 The location of the file varies depending on your operating system, and where you chose to install PMS.  Here are some common locations:
 
@@ -94,7 +82,7 @@ Linux           |/usr/lib/plexmediaserver/Resources/cacert.pem
 OS X            |/Applications/Plex Media Server/Resources/cacert.pem ??
 NAS             |/usr/lib/plexmediaserver/Resources/cacert.pem ??
 
-#####Installing in PMS's host OS
+#####Installing in PMS's host OS:
 
 If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate, returned at the end of the configuration script, to <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html" target="_blank">the trusted certificates for your PMS server's OS</a>, and any browser that doesn't use the OS's trusted certificates list.  Failure to do this will result in certificate errors when accessing plex.tv in a browser. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
 
@@ -104,9 +92,9 @@ Edit your hosts file
 To trick PMS into connecting to your NGINX proxy, so NGINX can intrstruct plex.tv to route all traffic from remote clients securly back to NGINX and then on to PMS, we must make your PMS server(s) beleive that the NGINX proxy is plex.tv.
 
 <a href="http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file" target="_blank">Edit your *hosts* file</a>
-And add (replacing 192.168.3.50 with your NGINX server):
+And add (replacing 192.168.1.10 with your NGINX server's address):
 ```
-192.168.3.50	plex.tv
+192.168.1.10	plex.tv
 ```
 
 Set up Plex
@@ -145,6 +133,11 @@ It is recommended you enable EPEL in CentOS. To do this, please visit this guide
 
 Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
+For the sake of this guide, the following settings are used:
+- Internal PMS hostname: *pms-vm*
+- Internal PMS IP: *192.168.3.207*
+- External hostname: *my.externalhost.com*
+- External port: *33443*
 
 Setup your firewall
 --------------
