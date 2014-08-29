@@ -18,12 +18,6 @@ This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-l
 
 Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
-For the sake of this guide, the following settings are used:
-- Internal PMS hostname: *pms-vm*
-- Internal PMS IP: *192.168.3.207*
-- External hostname: *my.externalhost.com*
-- External port: *33443*
-
 #**Before you begin: Certificates**
 --------------
 This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
@@ -164,6 +158,12 @@ You can look through the detailed instructions for CentOS and RHEL below to get 
 
 #**CentOS and RHEL variants**
 --------------
+
+For the sake of this guide, the following settings are used:
+- Internal PMS hostname: *pms-vm*
+- Internal PMS IP: *192.168.3.207*
+- External hostname: *my.externalhost.com*
+- External port: *33443*
 
 It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
 
