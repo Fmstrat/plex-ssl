@@ -82,6 +82,10 @@ Linux           |/usr/lib/plexmediaserver/Resources/cacert.pem
 OS X            |/Applications/Plex Media Server/Resources/cacert.pem ??
 NAS             |/usr/lib/plexmediaserver/Resources/cacert.pem ??
 
+You will need administrative or root access to edit this file.
+
+On Windows, you can right click "Notepad", select run as administrator, then open the cacerts.pem file from Notepad. (Hint: "You'll need to change Text Documents (*.txt)" to "All Files (*.*)")
+
 #####Installing in PMS's host OS:
 
 You will need to complete this step if you would like to access plex.tv from you PMS server. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
