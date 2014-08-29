@@ -2,6 +2,17 @@
 
 server {
 
+    listen 8099;
+
+    location /plex/certs/mitm.cer {
+        root /opt/ssl-plex/certs;
+        rewrite ^ /mitm.pem break;
+    }
+
+}
+
+server {
+
     listen 80;
     server_name plex.tv;
 
