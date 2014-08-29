@@ -116,8 +116,8 @@ TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:324
 TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
 ... ...
 ```
-replace 192.168.1.10 with your NGINX server's IP address<br/>
-replace 192.168.1.2x with your PMS server(s)' IP address(es)
+replacing 192.168.1.10 with your NGINX server's IP address<br/>
+replacing 192.168.1.2x with your PMS server(s)' IP address(es)
 
 If you only entered a single PMS server, you will only see one entry.
 
@@ -143,8 +143,8 @@ TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:324
 TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
 ... ...
 ```
-replace 192.168.1.10 with your NGINX server's IP address<br/>
-replace 192.168.1.2x with your PMS server(s)' IP address(es)
+replacing 192.168.1.10 with your NGINX server's IP address<br/>
+replacing 192.168.1.2x with your PMS server(s)' IP address(es)
 
 Use the information from the script to create port forwarding options on your firewall or router.
 
