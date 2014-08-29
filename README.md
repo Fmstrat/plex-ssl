@@ -126,7 +126,7 @@ Set up Plex
 --------------
 
 Now, configure Plex:
-- Visit: http://<PMS IP>:32400/web/index.html#!/settings/server
+- Visit: http://&lt;PMS IP&gt;:32400/web/index.html#!/settings/server
 - Goto **Connect**, sign in to Plex
 - Click **SHOW ADVANCED**
 - Check **Manually specify port**
@@ -146,7 +146,7 @@ TCP external:30443 TO <NGINX IP>:33443 (NGINX will forward to <PMS IP>:32400)
 You will see one line per PMS instance you have setup. These are the external port forwards you will need to create. If NGINX and PMS are installed ont he same machine, the IPs will be the same, but you should forward from your router to the NGINX IP.
 
 For instance, following the IP structure in this guide Use the following port forwarding options on your firewall.
-- External port 30443 -> NGINX HOST:30443
+- External port 30443 -> &lt;NGINX HOST&gt;:30443
 
 You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
 
