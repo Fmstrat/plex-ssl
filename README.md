@@ -33,7 +33,7 @@ For proxying between clients and Plex Media Server, we will require a "trusted" 
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- You are running Ubuntu in a Virtual Machine (If you're unfamiliar with them, <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> or <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> are good places to start.)
+- You are running Ubuntu in a Virtual Machine (If you are new to virtual machines, <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> or <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> are good places to start.)
 - That this is a fresh install of <a href="http://www.ubuntu.com/download/server" target="_blank">Ubuntu Server 14.04</a>, with only the minimum packages installed
 - No other services have been installed on Ubuntu, except openssh-server
 
