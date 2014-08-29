@@ -18,12 +18,6 @@ This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-l
 
 Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
-For the sake of this guide, the following settings are used:
-- Internal PMS hostname: *pms-vm*
-- Internal PMS IP: *192.168.3.207*
-- External hostname: *my.externalhost.com*
-- External port: *33443*
-
 #**Before you begin: Certificates**
 --------------
 This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
@@ -76,7 +70,10 @@ This involves two steps. Installing the certificate in PMS, and installing as a 
 
 #####Getting the certificate
 
-You can copy the self signed certificate from the output of setup-ubuntu.sh and paste it into an empty file, or ownload the certificate from: http://[your NGINX server address]:8088/plex/certs/mitm.cer
+You can copy the self signed certificate from the output of setup-ubuntu.sh and paste it into an empty file, or download the certificate from: 
+```
+http://<NGINX IP>:8099/plex/certs/mitm.cer
+```
 
 #####Installing the certificate in PMS
 
@@ -98,8 +95,8 @@ On Windows, you can right click *Notepad*, select *Run as Administrator*, then o
 
 On Ubuntu, you can run the below as root:
 ```
-~# cp /usr/lib/plexmediaserver/Resources/cacert.pem /usr/lib/plexmediaserver/Resources/cacert.pem.orig
-~# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
+~# sudo cp /usr/lib/plexmediaserver/Resources/cacert.pem /usr/lib/plexmediaserver/Resources/cacert.pem.orig
+~# sudo cat mitm.cer >> /usr/lib/plexmediaserver/Resources/cacert.pem
 ```
 
 #####Installing in PMS's host OS
@@ -123,19 +120,21 @@ And add:
 192.168.3.207	plex.tv
 ```
 
+(Replacing 192.168.3.207 with your NGINX IP address)
+
 Set up Plex
 --------------
 
 Now, configure Plex:
-- Visit: http://pms-vm:32400/web/index.html#!/settings/server
+- Visit: http://&lt;PMS IP&gt;:32400/web/index.html#!/settings/server
 - Goto **Connect**, sign in to Plex
 - Click **SHOW ADVANCED**
 - Check **Manually specify port**
-- Fill in 33443 (or whichever port was outputed in the script for each server)
+- Fill in 30443 (or whichever port was outputed in the script for each server)
 - Check **Require authentication on local networks**
 - Lastly, add media to your library
 
-[Enabling Local Network Authentication](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
+<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
 
 Setup your firewall
 --------------
@@ -147,7 +146,7 @@ TCP external:30443 TO <NGINX IP>:33443 (NGINX will forward to <PMS IP>:32400)
 You will see one line per PMS instance you have setup. These are the external port forwards you will need to create. If NGINX and PMS are installed ont he same machine, the IPs will be the same, but you should forward from your router to the NGINX IP.
 
 For instance, following the IP structure in this guide Use the following port forwarding options on your firewall.
-- External port 33443 -> pms-vm:33443
+- External port 30443 -> &lt;NGINX HOST&gt;:30443
 
 You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
 
@@ -159,6 +158,12 @@ You can look through the detailed instructions for CentOS and RHEL below to get 
 
 #**CentOS and RHEL variants**
 --------------
+
+For the sake of this guide, the following settings are used:
+- Internal PMS hostname: *pms-vm*
+- Internal PMS IP: *192.168.3.207*
+- External hostname: *my.externalhost.com*
+- External port: *33443*
 
 It is recommended you enable EPEL in CentOS. To do this, please visit this guide: http://www.tecmint.com/how-to-enable-epel-repository-for-rhel-centos-6-5/. 
 
