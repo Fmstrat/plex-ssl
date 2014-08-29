@@ -108,9 +108,7 @@ And add (replacing 192.168.1.10 with your NGINX server's address):
 Set up Plex
 --------------
 
-At the end of the setup-ubuntu.sh script, your will see an output like:<br/>
-replace 192.168.1.10 with your NGINX server's IP address<br/>
-replace 192.168.1.2x with your PMS server(s)' IP address(es)
+At the end of the setup-ubuntu.sh script, your will see an output like:
 ```
 Remember to add port mappings in your router for:
 TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
@@ -118,6 +116,9 @@ TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:324
 TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
 ... ...
 ```
+replace 192.168.1.10 with your NGINX server's IP address<br/>
+replace 192.168.1.2x with your PMS server(s)' IP address(es)
+
 If you only entered a single PMS server, you will only see one entry.
 
 Now, for each PMS server:
@@ -134,9 +135,7 @@ Now, for each PMS server:
 Setup your firewall
 --------------
 
-At the end of the setup-ubuntu.sh script, your will see an output like:<br/>
-replace 192.168.1.10 with your NGINX server's IP address<br/>
-replace 192.168.1.2x with your PMS server(s)' IP address(es)
+At the end of the setup-ubuntu.sh script, your will see an output like:
 ```
 Remember to add port mappings in your router for:
 TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
@@ -144,6 +143,9 @@ TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:324
 TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
 ... ...
 ```
+replace 192.168.1.10 with your NGINX server's IP address<br/>
+replace 192.168.1.2x with your PMS server(s)' IP address(es)
+
 Use the information from the script to create port forwarding options on your firewall or router.
 
 You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
