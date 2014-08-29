@@ -76,7 +76,7 @@ This involves two steps. Installing the certificate in PMS, and installing as a 
 
 You can copy the self signed certificate from the output of setup-ubuntu.sh and paste it into an empty file, or ownload the certificate from: http://[your NGINX server address]:8088/plex/certs/mitm.cer
 
-#####Installing in PMS
+#####Installing the certificate in PMS
 
 To install the certificate in PMS, you will need to append the contents of the certificate to PMS's cacerts.pem file. We recomend that you make a copy of this file before modification. Also note that you will need to repeat this step after updating PMS to a new version.
 
@@ -163,14 +163,6 @@ It is recommended you enable EPEL in CentOS. To do this, please visit this guide
 Unfortunately, CentOS does not have a preconfigured nginx with lua available, even in EPEL. To overcome this, we will use the openresty packages from http://openresty.org/. As a note, nginx could be installed on a seperate machine, and is not required to be on the same machine as PMS.
 
 
-Setup your firewall
---------------
-
-Use the following port forwarding options on your firewall.
-- External port 33443 -> pms-vm:33443
-
-You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
-
 Download and install Plex
 --------------
 Use the following commands to download and install Plex. You can get the URL for the latest version of Plex from https://plex.tv/downloads
@@ -196,8 +188,9 @@ Now, configure Plex:
 Edit your hosts file
 --------------
 
-To fake PMS into connecting to your proxy, and to route all traffic from the internet to PMS, we must make the machine beleive plex.tv is the localhost.
+To trick PMS into connecting to your NGINX proxy, so NGINX can intrstruct plex.tv to route all traffic from remote clients securly back to NGINX and then on to PMS, we must make your PMS server(s) believe that the NGINX proxy is plex.tv. To learn how to edit your host file, you can reference <a href="http://www.rackspace.com/knowledge_center/article/how-do-i-modify-my-hosts-file" target="_blank">this article</a>.
 
+For CentOS:
 ```
 [root@pms-vm ~]# vi /etc/hosts
 ```
@@ -209,9 +202,11 @@ And add:
 Set up your certificates
 --------------
 
-We will need two sets of certificates, one that is used as a Man In The Middle (MITM) certificate that PMS will use when connecting to the "fake" plex.tv host, and another, trusted certificate to use when external hosts connect to your system. The free certs from http://StartSSL.com has been verified to work on Android and Plex Web so far.
+We will need two sets of certificates, one that is used as a Man In The Middle (MITM) certificate that PMS will use when connecting to the "fake" plex.tv host, and another, trusted certificate to use when external hosts connect to your system. The free certs from http://StartSSL.com have been verified to work on Android and Plex Web so far.
 
-First, create your MITM certificate, and add it to PMS:
+#####Creating the self signed certificate
+
+First, create your MITM certificate:
 ```
 [root@pms-vm ~]# mkdir -p /etc/pki/tls/certs/mitm
 [root@pms-vm ~]# cd /etc/pki/tls/certs/mitm
@@ -246,7 +241,25 @@ Common Name (eg, your name or your server's hostname) []:plex.tv
 Email Address []:
 ```
 
-Then set permissions and integrate into PMS:
+#####Installing the certificate into PMS
+
+To install the certificate in PMS, you will need to append the contents of the certificate to PMS's cacerts.pem file. We recomend that you make a copy of this file before modification. Also note that you will need to repeat this step after updating PMS to a new version.
+
+The location of the file varies depending on your operating system, and where you chose to install PMS. Here are some common locations:
+
+Operating System|File Location
+----------------|--------------
+Windows |C:\Program Files (x86)\Plex\Plex Media Server\Resources\cacert.pem
+Linux |/usr/lib/plexmediaserver/Resources/cacert.pem
+OS X |/Applications/Plex Media Server/Resources/cacert.pem ??
+NAS |/usr/lib/plexmediaserver/Resources/cacert.pem ??
+
+You will need administrative or root access to edit this file.
+
+On Windows, you can right click *Notepad*, select *Run as Administrator*, then open the cacerts.pem file from Notepad.
+(Hint: You'll need to change *Text Documents* to *All Files* in order to see cacert.pem)
+
+In CentOS, set permissions and integrate into PMS:
 ```
 [root@pms-vm mitm]# chmod 600 *
 [root@pms-vm mitm]# cp /usr/lib/plexmediaserver/Resources/cacert.pem /usr/lib/plexmediaserver/Resources/cacert.pem.orig
@@ -255,6 +268,14 @@ Then set permissions and integrate into PMS:
 [root@pms-vm mitm]# echo "=========================" >> /usr/lib/plexmediaserver/Resources/cacert.pem
 [root@pms-vm mitm]# cat MITM_CA.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
 ```
+
+#####Installing in PMS's host OS
+
+You will need to complete this step if you would like to access plex.tv from your PMS server. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
+
+Use <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html" target="_blank">Kerio's guide to installing trusted root certificates</a> to install the self signed certificate on your PMS server's OS.
+
+#####Set up your external certificate
 
 Now we need to setup our external, valid certificate:
 ```
@@ -308,6 +329,14 @@ And if everything is OK, start up nginx and restart PMS:
 ```
 
 You can then follow the log files in */usr/local/openresty/nginx/logs* to make sure everything is functioning properly
+
+Setup your firewall
+--------------
+
+Use the following port forwarding options on your firewall.
+- External port 33443 -> pms-vm:33443
+
+You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
 
 #**Known problems**
 --------------
