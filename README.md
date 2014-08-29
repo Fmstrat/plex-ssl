@@ -134,8 +134,8 @@ Now, for each PMS server:
 Setup your firewall
 --------------
 
-At the end of the setup-ubuntu.sh script, your will see an output like:
-replace 192.168.1.10 with your NGINX server's IP address
+At the end of the setup-ubuntu.sh script, your will see an output like:<br/>
+replace 192.168.1.10 with your NGINX server's IP address<br/>
 replace 192.168.1.2x with your PMS server(s)' IP address(es)
 ```
 Remember to add port mappings in your router for:
