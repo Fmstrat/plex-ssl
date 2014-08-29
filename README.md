@@ -84,7 +84,9 @@ NAS             |/usr/lib/plexmediaserver/Resources/cacert.pem ??
 
 #####Installing in PMS's host OS:
 
-If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate, returned at the end of the configuration script, to <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html" target="_blank">the trusted certificates for your PMS server's OS</a>, and any browser that doesn't use the OS's trusted certificates list.  Failure to do this will result in certificate errors when accessing plex.tv in a browser. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
+You will need to complete this step if you would like to access plex.tv from you PMS server. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
+
+Use <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html" target="_blank">Kero's guide to installing trusted root certificates</a> to install the self signed certificate on your PMS server's OS.
 
 Edit your hosts file
 --------------
