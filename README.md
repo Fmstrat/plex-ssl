@@ -108,24 +108,43 @@ And add (replacing 192.168.1.10 with your NGINX server's address):
 Set up Plex
 --------------
 
-Now, configure Plex:
-- Visit: http://pms-vm:32400/web/index.html#!/settings/server
+At the end of the setup-ubuntu.sh script, your will see an output like:
+replace 192.168.1.10 with your NGINX server's IP address
+replace 192.168.1.2x with your PMS server(s)' IP address(es)
+```
+Remember to add port mappings in your router for:
+TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
+TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:32400)
+TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
+... ...
+```
+If you only entered a single PMS server, you will only see one entry.
+
+Now, for each PMS server:
+- Visit: http://[your PMS server address]:32400/web/index.html#!/settings/server
 - Goto **Connect**, sign in to Plex
 - Click **SHOW ADVANCED**
 - Check **Manually specify port**
-- Fill in 33443
+- Fill in 3x443 (referencing the output of the script for x, starting at 0)
 - Check **Require authentication on local networks**
-- Lastly, add media to your library
 
-[Enabling Local Network Authentication](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server is VERY IMPORTANT.  The secure reverse proxy will make PMS think that all traffic from the proxy is local if you do not.
-
+<a href="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT.  The secure reverse proxy will make PMS think that all traffic from the proxy is local.
 
 
 Setup your firewall
 --------------
 
-Use the following port forwarding options on your firewall.
-- External port 33443 -> pms-vm:33443
+At the end of the setup-ubuntu.sh script, your will see an output like:
+replace 192.168.1.10 with your NGINX server's IP address
+replace 192.168.1.2x with your PMS server(s)' IP address(es)
+```
+Remember to add port mappings in your router for:
+TCP external:30443 TO 192.168.1.10:30443 (NGINX will forward to 192.168.1.20:32400)
+TCP external:31443 TO 192.168.1.10:31443 (NGINX will forward to 192.168.1.21:32400)
+TCP external:32443 TO 192.168.1.10:32443 (NGINX will forward to 192.168.1.22:32400)
+... ...
+```
+Use the information from the script to create port forwarding options on your firewall or router.
 
 You must close/remove/block any non HTTPS ports on your firewall and/or router that previously connected to your PMS server(s) over HTTP. 
  
