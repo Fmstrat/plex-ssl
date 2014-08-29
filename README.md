@@ -94,7 +94,7 @@ You will need administrative or root access to edit this file.
 On Windows, you can right click *Notepad*, select *Run as Administrator*, then open the cacerts.pem file from Notepad.
 (Hint: You'll need to change *Text Documents* to *All Files* in order to see cacert.pem)
 
-On Ubuntu, you can run the below:
+On Ubuntu, you can run the below as root:
 ```
 ~# cp /usr/lib/plexmediaserver/Resources/cacert.pem /usr/lib/plexmediaserver/Resources/cacert.pem.orig
 ~# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
