@@ -126,7 +126,7 @@ And add:
 192.168.3.207	plex.tv
 ```
 
-(Replaceing 192.168.3.207 with your NGINX IP address)
+(Replacing 192.168.3.207 with your NGINX IP address)
 
 Set up Plex
 --------------
@@ -136,11 +136,11 @@ Now, configure Plex:
 - Goto **Connect**, sign in to Plex
 - Click **SHOW ADVANCED**
 - Check **Manually specify port**
-- Fill in 33443 (or whichever port was outputed in the script for each server)
+- Fill in 30443 (or whichever port was outputed in the script for each server)
 - Check **Require authentication on local networks**
 - Lastly, add media to your library
 
-[Enabling Local Network Authentication](https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication) in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
+<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
 
 Setup your firewall
 --------------
