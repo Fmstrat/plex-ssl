@@ -5,7 +5,7 @@ A guide to using NGINX to secure Plex via SSL.
 
 **THIS IS CURRENTLY UNDER DEVELOPMENT BY JKIEL AND FMSTRAT. THIS IS EXPERIMENTAL AND HAS NOT YET BEEN TESTED THOUROUGHLY. THIS DISCLAIMER WILL BE REMOVED WHEN THE HOWTO AND CONFIGURATION FILES ARE UPDATED TO THEIR FINAL STATES AND TESTING IS COMPLETED.**
 
-This guide is based on all the hard work by [jkiel](https://forums.plex.tv/index.php/user/91991-jkiel/) by tracing the HTTP/S requests between PMS, Plex.tv, and clients. His work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team is working on a more permanent solution.
+This guide is based on all the hard work by [jkiel](https://forums.plex.tv/index.php/user/91991-jkiel/) by tracing the HTTP/S requests between PMS, Plex.tv, and clients. His work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team will have a native solution relativly soon.
 
 The post by [Fmstrat](https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members [in this thread](https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/).
 
@@ -44,7 +44,8 @@ For proxying between clients and Plex Media Server, we will require a "trusted" 
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed
+- You are running Ubuntu in a Virtual Machine (vm) (If you're unfamiliar with them, Vmware Player or Virtual Box are proabably good places to start.)
+- That this is a fresh install of <a href="http://www.ubuntu.com/download/server" target="_blank">Ubuntu Server 14.04</a>, with only the minimum packages installed
 - No other services have been installed on Ubuntu, except openssh-server
 
 Option 1: Use the configuration script
@@ -71,23 +72,31 @@ At the end, the script will return a self signed certificate that's used to prox
 Integrate proxy certificate into Plex Media Server(s)
 --------------
 
-After you've completed every step of this configuration, your PMS server will route all traffic destined for plex.tv through the NGINX proxy.  This will not succeed until the self signed certificate is installed on every local PMS server that you're securing. 
+After you've completed every step of this configuration, your PMS server will route all traffic destined for plex.tv through the NGINX proxy.  This will not succeed until the self signed certificate is installed on the local PMS server(s) that you're securing. 
 
-This involves two steps.  Installing the certificate in PMS, and installing as a trusted certificate in operating system PMS is running on.
+This involves two steps.  Installing the certificate in PMS, and installing as a trusted certificate in the operating system PMS is running on.
 
-Getting the certificate.
+#####Getting the certificate:
 
-You can download the certificate from http://nginx-vm:8088/ssl-plex/mitm.cer  (replace nginx-vm with its IP address)
+You can download the certificate from http://nginx-vm:8088/ssl-plex/mitm.cer
+*(replace "nginx-vm" with the IP address you've given it)*
 
-To install in PMS:
+#####Installing in PMS
 
- 
+To install the certificate in PMS, you will need to append the contents of the certificate to PMS's cacerts.pem file.  We recomend that you make a copy of this file before modification.  Also note that you will need to repeate this step after updating PMS to a new version.
 
-Then set permissions and integrate into PMS:
-```
-~# cat <certificate>.pem >> /usr/lib/plexmediaserver/Resources/cacert.pem
-```
-**NOTE:** If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate, returned at the end of the configuration script, to [the trusted certificates for your PMS server's OS](http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html), and any browser that doesn't use the OS's trusted certificates list.  To do this, you'll probably want to paste the certificate into a "fakeplextv.cer" file. Failure to do this will result in SSL errors in the browser due to running through the nginx proxy. If you do NOT wish to access https://plex.tv in browsers or commands on the PMS system, this step is not necessary.
+The location of the file varies depending on your operating system, and where you chose to install PMS.  Here are some common locations:
+
+Operating System|File Location
+----------------|--------------
+Windows         |C:\Program Files (x86)\Plex\Plex Media Server\Resources\cacert.pem
+Linux           |/usr/lib/plexmediaserver/Resources/cacert.pem
+OS X            |/Applications/Plex Media Server/Resources/cacert.pem ??
+NAS             |/usr/lib/plexmediaserver/Resources/cacert.pem ??
+
+#####Installing in PMS's host OS
+
+If you wish to access https://plex.tv from the machine that PMS is installed on, you must add the self signed certificate, returned at the end of the configuration script, to <a href="http://kb.kerio.com/product/kerio-connect/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html" target="_blank">the trusted certificates for your PMS server's OS</a>, and any browser that doesn't use the OS's trusted certificates list.  Failure to do this will result in certificate errors when accessing plex.tv in a browser. If you do NOT wish to access https://plex.tv in browsers or commands (like wget) on the PMS system, this step is not necessary.
 
 Edit your hosts file
 --------------
