@@ -10,6 +10,8 @@ This guide is based on all the hard work by [jkiel](https://forums.plex.tv/index
 The post by [Fmstrat](https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members [in this thread](https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/).
 
 ![Before](https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/images/mitm-before.png)
+
+
 ![After](https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/images/mitm-after.png)
 
 This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-lts) and [**CentOS and RHEL variants**](#centos-and-rhel-variants).
