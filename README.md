@@ -18,6 +18,22 @@ This guide was developed for [**Ubuntu Server 14.04 LTS**](#ubuntu-server-1404-l
 
 Please have a look over the [Known Problems](#known-problems) before you decide to use this.
 
+
+#**Tested Clients**
+--------------
+Any Plex Web clients tested below were testing by going directly to the remote IP hostname, **not** to plex.tv.
+
+OS/Device|Client|Result|Notes
+----------------|----------------|----------------|--------------
+Android 4.x|Plex|**Pass**|
+iOS 7|Chrome|**Pass**|
+iOS 7|Plex|Fail|Transmits token insecurly when attempting to play video, then fails to play
+OSX|Chrome|**Pass**|
+RasPlex|PHT|**Pass**|
+Roke 3|Plex|Fail|Functions securely, but artwork fails, making browsing near impossible
+Roku 3|RarFlix|Fail|Functions securely, but artwork fails, making browsing near impossible
+
+
 #**Before you begin: Certificates**
 --------------
 This method of securing Plex works by proxying connections between Plex Media Server and Plex.tv and between Plex Media Server and clients. It works by:
