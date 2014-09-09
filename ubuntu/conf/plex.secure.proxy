@@ -17,7 +17,26 @@ server {
 
     # if port was accessed as http redirect https
     # (.js from plex.tv checks server status using http. Not good.)
-    error_page 497 =302 https://$host:$server_port/unsecure_connection$request_uri;
+    error_page 497 =200 @unsecure;
+
+    location @proxy {
+        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_set_header Host $host:$server_port;
+
+        # re-write redirects to http as to https
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        break;
+    }
+    
+    location @unsecure {
+        content_by_lua '
+            ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
+            ngx.exec("@proxy")
+        ';
+        break;
+    }
+
 
     location @proxy {
         proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
@@ -45,22 +64,6 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 
     }
-    
-    location ~ /unsecure_connection(.*) {
-        access_by_lua 'nxg.log(ngx.ERR,ngx.var.request_uri)';
-        rewrite ^/unsecure_connection/(.*) /$1?$args permanent;
-        break;
-    }
-
-    # force POST to workaround insecure connections (remove when ios/windows 8 apps are fixed)
-    location ~ /playQueues(.*) {
-        content_by_lua '
-                ngx.req.set_method(ngx.HTTP_POST)
-                ngx.exec("@proxy")
-        ';
-        break;
-    }
-
 
     location / {
 
