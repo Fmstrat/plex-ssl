@@ -7,7 +7,7 @@ server {
 
     gzip             on;
     gzip_proxied     any;
-    gzip_types       text/html text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/$
+    gzip_types       text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/$
     gzip_vary        on;
 
     ssl on;
@@ -17,16 +17,38 @@ server {
 
     # if port was accessed as http redirect https
     # (.js from plex.tv checks server status using http. Not good.)
-    error_page 497 =303 https://$host:$server_port$request_uri;
+    error_page 497 =200 @unsecure;
+
+    location @proxy {
+        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_set_header Host $host:$server_port;
+
+        # re-write redirects to http as to https
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        break;
+    }
+    
+    location @unsecure {
+        content_by_lua '
+            ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
+            ngx.exec("@proxy")
+        ';
+        break;
+    }
 
     location ~ "(.*)websockets(.*)" {
 
         proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_cache off;
+        proxy_buffering off;
+
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_read_timeout 86400;
-        break;
+        proxy_set_header Connection $connection_upgrade;
+
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 
     }
 

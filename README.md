@@ -25,12 +25,14 @@ Any Plex Web clients tested below were testing by going directly to the remote I
 
 OS/Device|Client|Result|Notes
 ----------------|----------------|----------------|--------------
-Android 4.x|Plex|**Pass**|
-iOS 7|Chrome|**Pass**|
-iOS 7|Plex|Fail|Transmits token insecurly when attempting to play video, then fails to play
-OSX|Chrome|**Pass**|
+Android 4.x|Plex App|**Pass**|
+iOS 7|Plex Web on Chrome|**Partial Pass**|Websockets do not work, breaking some features|
+iOS 7|Plex App|Fail|Works, but transmits token insecurly over http
+OSX|Plex Web on Chrome|**Partial Pass**|Websockets do not work, breaking some features|
 RasPlex|PHT|**Pass**|
-Roke 3|Plex|Fail|Functions securely, but artwork fails, making browsing near impossible
+Windows|PHT|**Pass**|
+Windows|Plex App|Fail|Works, but transmits token insecurly over http
+Roku 3|Plex App|Fail|Functions securely, but artwork fails, making browsing near impossible
 Roku 3|RarFlix|Fail|Functions securely, but artwork fails, making browsing near impossible
 
 
