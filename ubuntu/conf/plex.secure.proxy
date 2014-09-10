@@ -17,7 +17,7 @@ server {
 
     # if port was accessed as http redirect https
     # (.js from plex.tv checks server status using http. Not good.)
-    error_page 497 =200 @unsecure;
+    error_page 497 = @unsecure;
 
     location @proxy {
         proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
