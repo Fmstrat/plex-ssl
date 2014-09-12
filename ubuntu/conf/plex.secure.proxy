@@ -17,7 +17,7 @@ server {
 
     # if port was accessed as http redirect https
     # (.js from plex.tv checks server status using http. Not good.)
-    error_page 497 =200 @unsecure;
+    error_page 497 = @unsecure;
 
     location @proxy {
         proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
@@ -31,8 +31,36 @@ server {
     
     location @unsecure {
         content_by_lua '
-            ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
-            ngx.exec("@proxy")
+            local args = ngx.req.get_uri_args()
+            local headers = ngx.req.get_headers()
+            if ngx.req.get_method() == "GET" and args["X-Plex-Token"] == nil and headers["X-Plex-Token"] == nil then
+                -- If a GET and no token has been sent, redirect to https
+                ngx.redirect("https://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri)
+            else
+                -- Else, log the insecure request and proxy the request
+                if headers["X-Plex-Token"] ~= nil then
+                    -- Token was passed in header.  Everything else probably was to.
+                    args = headers
+                end
+                local file = io.open("/var/log/nginx/security.log", "a")
+                local client = args["X-Plex-Client-Platform"]
+                local device = args["X-Plex-Device-Name"]
+                if client == nil then
+                    client = "unknown"
+                end
+                if device == nil then
+                    device = "unknown"
+                end
+                file:write(ngx.localtime() ..
+                  "\tTOKEN EXPOSED" ..
+                  "\t" .. ngx.var.remote_addr ..
+                  "\t" .. ngx.unescape_uri(client) ..
+                  "\t" .. ngx.unescape_uri(device) ..
+                  "\t" .. ngx.req.get_method() ..
+                  "\t" .. "http://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri .. "\\n")
+                file:close()
+                ngx.exec("@proxy")
+            end
         ';
         break;
     }
@@ -61,7 +89,6 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 
         proxy_redirect http://$host:$server_port https://$host:$server_port;
-
 
     }
 
