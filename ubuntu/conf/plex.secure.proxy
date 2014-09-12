@@ -31,8 +31,15 @@ server {
     
     location @unsecure {
         content_by_lua '
-            ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
-            ngx.exec("@proxy")
+            local args = ngx.req.get_uri_args()
+            if ngx.req.get_method() == "GET" and args["X-Plex-Token"] == nil then
+                -- If a GET and no token has been sent, redirect to https
+                ngx.redirect("https://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri);
+            else
+                -- Else, log the unsecure request and proxy the request
+                ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
+                ngx.exec("@proxy")
+            end
         ';
         break;
     }
@@ -61,7 +68,6 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 
         proxy_redirect http://$host:$server_port https://$host:$server_port;
-
 
     }
 
