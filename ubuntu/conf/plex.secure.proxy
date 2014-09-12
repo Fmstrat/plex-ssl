@@ -39,7 +39,7 @@ server {
             else
                 -- Else, log the insecure request and proxy the request
                 if headers["X-Plex-Token"] ~= nil then
-                    -- Token was passed in header.  Everything else probably was too
+                    -- Token was passed in header.  Everything else probably was to.
                     args = headers
                 end
                 local file = io.open("/var/log/nginx/security.log", "a")
