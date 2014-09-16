@@ -65,7 +65,7 @@ server {
         break;
     }
 
-    location ~ "(.*)websockets(.*)" {
+    location /:/websockets {
 
         proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
         proxy_cache off;
@@ -79,6 +79,31 @@ server {
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
 
     }
+
+    # modify plex.js response to fix some issues with websockets
+    location = /web/js/plex.js {
+
+        proxy_set_header Accept-Encoding "";
+
+        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        proxy_set_header Host $host:$server_port;
+
+        # re-write redirects to http as to https
+        proxy_redirect http://$host:$server_port https://$host:$server_port;
+
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        header_filter_by_lua '
+            ngx.header.content_length = nil
+        ';
+
+        body_filter_by_lua
+        '
+            ngx.arg[1] = ngx.re.sub(ngx.arg[1],"\\"ws://\\"", "((location.protocol === \\"https:\\")?\\"wss://\\":\\"ws://\\")")
+        ';
+    }
+
 
     location / {
 
