@@ -44,7 +44,12 @@ server {
             local headers = ngx.req.get_headers()
             if ngx.req.get_method() == "GET" and args["X-Plex-Token"] == nil and headers["X-Plex-Token"] == nil then
                 -- If a GET and no token has been sent, redirect to https
-                ngx.redirect("https://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri)
+                -- If a GET and no token has been sent, redirect to https
+                if ngx.re.find(ngx.var.request_uri,"^/photo/:/transcode") ~= nil then
+                    ngx.exec("@proxy")
+                else
+                    ngx.redirect("https://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri)
+                end
             else
                 -- Else, log the insecure request and proxy the request
                 local file = io.open("/var/log/nginx/security.log", "a+")
