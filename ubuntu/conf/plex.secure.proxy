@@ -1,45 +1,255 @@
 # Reverse HTTPS proxy for Plex Media Server
 
-server {
+#server {
+#    listen 32400;
+#    location @openproxy {
+#        proxy_pass http://192.168.0.10:32400;
+#        proxy_set_header X-Real-IP       $remote_addr;
+#        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#    }
+#    location / {
+#        content_by_lua '
+#            local pk = ngx.shared.pmskeys
+#            local token = pk:get("192.168.0.10")
+#            if token ~= nil then
+#                ngx.req.set_header("X-Plex-Token", token)
+#                ngx.exec("@openproxy")
+#            else
+#                ngx.exit(ngx.HTTP_UNAUTHORIZED)
+#            end
+#        ';
+#    }
+#}
 
-    listen 30443;
-    server_name my.externalhost.com;
+server {  
+  
+    listen 30443;  
 
-    gzip             on;
-    gzip_proxied     any;
-    gzip_types       text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/$
-    gzip_vary        on;
+    gzip          on;
+    gzip_proxied  any;
+    gzip_types    text/css text/plain text/xml application/xml application/javascript application/x-javascript text/javascript application/json text/x-json;
+    gzip_vary     on;
+  
+    ssl on;  
+    ssl_certificate /usr/local/nginx/conf/server.pem;  
+    ssl_certificate_key /usr/local/nginx/conf/server.key;  
+    ssl_session_cache shared:SSL:10m;  
 
-    ssl on;
-    ssl_certificate /opt/ssl-plex/certs/proxy.pem;
-    ssl_certificate_key /opt/ssl-plex/certs/proxy.key;
-    ssl_session_cache shared:SSL:10m;
+    # if port was accessed as http, redirect to http connection mamanger 
+    error_page 497 = @insecure;
 
-    # if port was accessed as http redirect https
-    # (.js from plex.tv checks server status using http. Not good.)
-    error_page 497 =200 @unsecure;
-
-    location @proxy {
-        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
-        proxy_set_header Host $host:$server_port;
-
-        # re-write redirects to http as to https
-        proxy_set_header        X-Real-IP       $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-        break;
-    }
-    
-    location @unsecure {
-        content_by_lua '
-            ngx.log(ngx.ERR,"UNSECURE REQUEST: " .. ngx.var.uri)
-            ngx.exec("@proxy")
+    location @insecure {
+	content_by_lua '
+            local args = ngx.req.get_uri_args()
+            local headers = ngx.req.get_headers()
+            if ngx.req.get_method() == "GET" and args["X-Plex-Token"] == nil and headers["X-Plex-Token"] == nil then
+                -- If a GET and no token has been sent, redirect to https
+                if ngx.re.find(ngx.var.request_uri,"^/photo/:/transcode") ~= nil then
+                    ngx.exec("@proxy")
+                else
+                    ngx.redirect("https://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri)
+                end
+            else
+                -- Else, log the insecure request and proxy the request
+                local file = io.open("/var/log/nginx/security.log", "a+")
+                if headers["X-Plex-Token"] ~= nil then
+                    -- Token was passed in header.  Everything else probably was to.
+                    args = headers
+                end
+                local client = args["X-Plex-Client-Platform"]
+                local device = args["X-Plex-Device-Name"]
+                if client == nil then
+                    client = "unknown"
+                end
+                if device == nil then
+                    device = "unknown"
+                end
+                file:write(ngx.localtime() .. 
+                  "\tTOKEN EXPOSED" .. 
+                  "\t" .. ngx.var.remote_addr .. 
+                  "\t" .. ngx.unescape_uri(client) .. 
+                  "\t" .. ngx.unescape_uri(device) .. 
+                  "\t" .. ngx.req.get_method() .. 
+                  "\t" .. "http://" .. ngx.var.host .. ":" .. ngx.var.server_port .. ngx.var.request_uri .. "\\n")
+                file:close()
+                ngx.exec("@proxy")
+            end
         ';
         break;
     }
 
-    location ~ "(.*)websockets(.*)" {
+    location @proxy {
 
-        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
+        access_by_lua '
+            -- Check for paths that allow unrestricted access
+            if ngx.re.find(ngx.var.request_uri,"^/(web|manage)/") == nil then
+                -- Needs auth
+                local na = true
+                local args = ngx.req.get_uri_args()
+                local headers = ngx.req.get_headers()
+                local clt = args["X-Plex-Token"]
+                if clt == nil then
+                    clt = headers["X-Plex-Token"]
+                end
+                local pbt = args["X-Plex-Public-Token"]
+                if pbt == nil then
+                    pbt = headers["X-Plex-Public-Token"]
+                end
+                if pbt and clt == nil then
+                    clt = pbt
+                end
+                local pk = ngx.shared.pmskeys
+                local token = pk:get("192.168.0.10")
+                if clt and token then
+                    local pck = ngx.shared.pmsclientkeys
+                    local ek = "expires:" .. token
+                    local t = ngx.time()
+                    local lt = pck:get(ek)
+                    local lasthash = pck:get(token .. "_" .. clt)
+                    if ((((lt ~= nil and tonumber(lt) > t) or ngx.re.find(ngx.var.request_uri,"^/:/websockets") ~= nil) and (lasthash ~= nil)) or pbt ~= nil) then
+                        na = false
+                    else
+                        local res = ngx.location.capture("/devices.xml?X-Plex-Token=" .. token)
+                        if res.status == ngx.HTTP_OK and res.body then
+                            pck:set(ek, t + (60*10))
+                            local xmlhash = ngx.md5(res.body)
+                            local lasthash = pck:get("lasthash:" .. token)
+                            if lasthash == nil or lasthash ~= xmlhash then
+                                pck:set("lasthash:" .. token,xmlhash)
+                                for ct in string.gmatch(res.body, "token=\\"([^\\"]+)\\"") do
+                                    pck:set(token .. "_" .. ct, xmlhash)
+                                end
+                                local f = io.open("/tmp/pms_clients","w+")
+                                local pke = pck:get_keys()
+                                for k,v in pairs(pke) do
+                                    if string.find(v, "^" .. token .. "_") ~= nil then
+                                        if pck:get(v) ~= xmlhash then
+                                            pck:delete(v)
+                                        else
+                                            f:write(v .. "\\t" .. xmlhash .. "\\n")
+                                        end
+                                    else
+                                        f:write(v .. "\\t" .. pck:get(v) .. "\\n")
+                                    end
+                                end
+                                f:close()
+                            end
+                        else
+                            pck:set(ek, t + 60)
+                        end
+                        lasthash = pck:get(token .. "_" .. clt)
+                        if lasthash then
+                            na = false
+                        end
+                    end
+                end
+                if na then
+                    local hd = ngx.req.get_headers()
+                    local a = "Access-Control-"
+                    local acr = hd[a .. "Request-Headers"]
+                    if ngx.re.find(acr,"x-plex-version") ~= nil then
+                        ngx.header[a .. "Allow-Headers"] = acr
+                        ngx.header[a.. "Allow-Methods"] = "POST, GET, OPTIONS, DELETE, PUT, HEAD"
+                        ngx.header[a .. "Allow-Origin"] = "*"
+                        ngx.header[a .. "Max-Age"] = "1209600"
+                        ngx.exit(200)
+                    else
+                        ngx.exit(ngx.HTTP_UNAUTHORIZED)                        
+                    end
+                end
+            end
+        ';
+
+        content_by_lua '
+            local args = ngx.req.get_uri_args()
+            local headers = ngx.req.get_headers()
+            local st = args["X-Plex-Send-Public-Token"]
+            if st == nil then
+                st = headers["X-Plex-Send-Public-Token"]
+            end
+            local pbt = args["X-Plex-Public-Token"]
+            if pbt == nil or clt == "" then
+                pbt = headers["X-Plex-Public-Token"]
+            end
+            if pbt ~= nil then
+                pbt = pbt:gsub("([^a-zA-Z0-9])","")
+            end
+            if ngx.re.find(ngx.var.request_uri,"^/photo/:/transcode") ~= nil then
+                if pbt ~= nil then
+                    local na = true
+                    local f = io.open("/tmp/" .. pbt .. ".pmsxml","r")
+                    if f ~= nil then
+                        local clt = f:read()
+                        local pk = ngx.shared.pmskeys;
+                        local pck = ngx.shared.pmsclientkeys;
+                        local token = pk:get("192.168.0.10")
+                        local url = args["url"]
+                        if clt ~= nil and token ~= nil and url ~= nil then
+                            local lasthash = pck:get(token .. "_" .. clt)
+                            if lasthash ~= nil then
+                                eurl = ngx.re.gsub(url,"^http://127\\.0\\.0\\.1:32400","")
+                                eurl = eurl:gsub("([\\.\\?\\\\\\[\\]\\(\\)\\+\\*\\{\\}\\^\\$\\/])","\\\\%1")
+                                eurl = eurl:gsub("\\"","")
+                                local xml = f:read("*a")
+                                if ngx.re.find(xml," (thumb|grandparentThumb)=\\"" .. eurl .. "\\"") ~= nil then
+                                    ngx.req.set_header("X-Plex-Token", clt)
+                                    na = false
+                                end
+                            end
+                        end
+                        f:close()
+                    end
+                    if na then
+                        ngx.exit(ngx.HTTP_UNAUTHORIZED)
+                    else
+                        ngx.exec("@standardproxy")
+                    end
+                else
+                    ngx.exec("@standardproxy")
+                end
+            elseif pbt ~= nil then
+                ngx.exit(ngx.HTTP_UNAUTHORIZED)
+            elseif ngx.re.find(ngx.var.request_uri,"^/:/websockets") ~= nil then
+                ngx.exec("@websocketproxy")
+            elseif st ~= nil and st == "true" then
+                ngx.exec("@send_public_token")
+            elseif ngx.re.find(ngx.var.request_uri,"^/servers") ~= nil then
+                local i3,i2,i1,i0 = ngx.var.remote_addr:match("([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+                local intip = (i3 * math.pow(256,3)) + (i2 * math.pow(256,2)) + (i1 * 256) + i0
+                local psn = ngx.shared.pmssubnets
+                local pse = psn:get_keys()
+                local islocal = false
+                for k,v in pairs(pse) do
+                    if math.floor(intip/psn:get(v)) == tonumber(v) then
+                        islocal = true
+                    end
+                end
+                if islocal then
+                    ngx.exec("@standardproxy")
+                else
+                    ngx.exec("@non_local_servers")
+                end
+            else
+                ngx.exec("@standardproxy")
+            end
+        ';
+
+    }
+
+    location @standardproxy {
+
+        proxy_pass http://192.168.0.10:32400;
+        proxy_pass_request_headers on;
+
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    }
+
+    location @websocketproxy {
+
+        proxy_pass http://192.168.0.10:32400;
+        proxy_pass_request_headers on;
         proxy_cache off;
         proxy_buffering off;
 
@@ -47,22 +257,113 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
 
-        proxy_set_header        X-Real-IP       $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
     }
+
+    location @non_local_servers {
+
+        proxy_pass http://192.168.0.10:32400;
+        proxy_pass_request_headers on;
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        header_filter_by_lua '
+            ngx.header.content_length = nil
+        ';
+
+        body_filter_by_lua '
+            local ph = ngx.shared.pmshosts
+            local hp = ph:get("192.168.0.10")
+            local h,p = hp:match("([^:]+):([^:]+)")
+            if h == nil then
+                h = "127.0.0.0"
+                p = "32400"
+            end
+            ngx.arg[1] = ngx.re.gsub(ngx.arg[1],"address=\\"[^\\"]+\\"", "address=\\"" .. h .. "\\" scheme=\\"https\\"")
+            ngx.arg[1] = ngx.re.gsub(ngx.arg[1],"host=\\"[^\\"]+\\"", "host=\\"" .. h .. "\\"")
+            ngx.arg[1] = ngx.re.gsub(ngx.arg[1],"port=\\"[^\\"]+\\"", "port=\\"" .. p .. "\\"")
+        ';
+    }
+
+    location @send_public_token {
+
+        proxy_pass http://192.168.0.10:32400;
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header Accept-Encoding "";
+        proxy_set_header X-Real-IP       $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        header_filter_by_lua '
+            ngx.header.content_length = nil
+            local args = ngx.req.get_uri_args()
+            local headers = ngx.req.get_headers()
+            local clt = args["X-Plex-Token"]
+            if clt == nil then
+                clt = headers["X-Plex-Token"]
+            end
+            if clt ~= nil then
+                local pbt = ngx.md5(clt .. ":" .. ngx.var.request_uri)
+                local f = io.open("/tmp/" .. pbt .. ".pmsxml","w+")
+                if f ~= nil then
+                    f:write(clt .. "\\n")
+                    f:close()
+                end
+            end
+        ';
+
+        body_filter_by_lua '
+            local args = ngx.req.get_uri_args()
+            local headers = ngx.req.get_headers()
+            local clt = args["X-Plex-Token"]
+            if clt == nil then
+                clt = headers["X-Plex-Token"]
+            end
+            if clt ~= nil then
+                local pbt = ngx.md5(clt .. ":" .. ngx.var.request_uri)
+                local f = io.open("/tmp/" .. pbt .. ".pmsxml","a+")
+                if f ~= nil then
+                    f:write(ngx.arg[1])
+                    f:close()
+                end
+                ngx.arg[1] = ngx.re.gsub(ngx.arg[1],"(<MediaContainer)", "$1 publicToken=\\"" .. pbt .. "\\"")
+            end
+        ';
+
+    }
+
+    location /devices.xml {
+        # get tokens for allowed clients from plex.tv
+        internal;
+        proxy_pass https://www.plex.tv;
+        proxy_pass_request_headers off;
+        proxy_set_header Host plex.tv;
+    }
+
+    # modify plex.js response to fix some issues with websockets
+    # something similar seems to be in v2.2.7 now 
+    #location = /web/js/plex.js {
+    #    proxy_pass http://192.168.0.10:32400;
+    #    proxy_set_header Host $host:$server_port;
+    #    proxy_set_header Accept-Encoding "";
+    #    proxy_set_header X-Real-IP       $remote_addr;
+    #    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #    header_filter_by_lua ' 
+    #        ngx.header.content_length = nil 
+    #    '; 
+    #    body_filter_by_lua ' 
+    #        ngx.arg[1] = ngx.re.sub(ngx.arg[1],"\\"ws://\\"", "((location.protocol === \\"https:\\")?\\"wss://\\":\\"ws://\\")") 
+    #    '; 
+    #}
 
     location / {
-
-        proxy_pass http://192.168.0.10:32400;  # <-- Change to your PMS IP address
-        proxy_set_header Host $host:$server_port;
-
-        proxy_set_header        X-Real-IP       $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-
-        proxy_redirect http://$host:$server_port https://$host:$server_port;
-
-
-    }
+        content_by_lua '
+            ngx.exec("@proxy")
+        ';
+    } 
 
 }
+
