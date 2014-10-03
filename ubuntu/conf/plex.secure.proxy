@@ -82,7 +82,7 @@ server {
 
         access_by_lua '
             -- Check for paths that allow unrestricted access
-            if ngx.re.find(ngx.var.request_uri,"^/(web/{0,1}$|manage/{0,1}$|web/css/|web/js/|web/img/|web/fonts/|web/translations/|web/swf/|web/index.html|manage/index.html|manage/Frameworks/EKSpinner/Resources)") == nil then
+            if ngx.re.find(ngx.var.request_uri,"^/(web|manage)/") == nil then
                 -- Needs auth
                 local na = true
                 local args = ngx.req.get_uri_args()
@@ -95,12 +95,12 @@ server {
                 if pbt == nil then
                     pbt = headers["X-Plex-Public-Token"]
                 end
-                if pbt ~= nil and clt == nil then
+                if pbt and clt == nil then
                     clt = pbt
                 end
                 local pk = ngx.shared.pmskeys
                 local token = pk:get("192.168.0.10")
-                if clt ~= nil and token ~= nil then
+                if clt and token then
                     local pck = ngx.shared.pmsclientkeys
                     local ek = "expires:" .. token
                     local t = ngx.time()
@@ -110,7 +110,7 @@ server {
                         na = false
                     else
                         local res = ngx.location.capture("/devices.xml?X-Plex-Token=" .. token)
-                        if res.status == ngx.HTTP_OK and res.body ~= nil and res.body ~= "" then
+                        if res.status == ngx.HTTP_OK and res.body then
                             pck:set(ek, t + (60*10))
                             local xmlhash = ngx.md5(res.body)
                             local lasthash = pck:get("lasthash:" .. token)
@@ -120,33 +120,42 @@ server {
                                     pck:set(token .. "_" .. ct, xmlhash)
                                 end
                                 local f = io.open("/tmp/pms_clients","w+")
-                                if f ~= nil then
-                                    local pke = pck:get_keys()
-                                    for k,v in pairs(pke) do
-                                        if string.find(v, "^" .. token .. "_") ~= nil then
-                                            if pck:get(v) ~= xmlhash then
-                                                pck:delete(v)
-                                            else
-                                                f:write(v .. "\\t" .. xmlhash .. "\\n")
-                                            end
+                                local pke = pck:get_keys()
+                                for k,v in pairs(pke) do
+                                    if string.find(v, "^" .. token .. "_") ~= nil then
+                                        if pck:get(v) ~= xmlhash then
+                                            pck:delete(v)
                                         else
-                                            f:write(v .. "\\t" .. pck:get(v) .. "\\n")
+                                            f:write(v .. "\\t" .. xmlhash .. "\\n")
                                         end
+                                    else
+                                        f:write(v .. "\\t" .. pck:get(v) .. "\\n")
                                     end
-                                    f:close()
                                 end
+                                f:close()
                             end
                         else
                             pck:set(ek, t + 60)
                         end
                         lasthash = pck:get(token .. "_" .. clt)
-                        if lasthash ~= nil then
+                        if lasthash then
                             na = false
                         end
                     end
                 end
                 if na then
-                    ngx.exit(ngx.HTTP_UNAUTHORIZED)
+                    local hd = ngx.req.get_headers()
+                    local a = "Access-Control-"
+                    local acr = hd[a .. "Request-Headers"]
+                    if ngx.re.find(acr,"x-plex-version") ~= nil then
+                        ngx.header[a .. "Allow-Headers"] = acr
+                        ngx.header[a.. "Allow-Methods"] = "POST, GET, OPTIONS, DELETE, PUT, HEAD"
+                        ngx.header[a .. "Allow-Origin"] = "*"
+                        ngx.header[a .. "Max-Age"] = "1209600"
+                        ngx.exit(200)
+                    else
+                        ngx.exit(ngx.HTTP_UNAUTHORIZED)                        
+                    end
                 end
             end
         ';
