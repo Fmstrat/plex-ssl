@@ -163,6 +163,9 @@ server {
             if pbt == nil or clt == "" then
                 pbt = headers["X-Plex-Public-Token"]
             end
+            if pbt ~= nil then
+                pbt = pbt:gsub("([^a-zA-Z0-9])","")
+            end
             if ngx.re.find(ngx.var.request_uri,"^/photo/:/transcode") ~= nil then
                 if pbt ~= nil then
                     local na = true
