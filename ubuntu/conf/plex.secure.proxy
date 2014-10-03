@@ -179,7 +179,7 @@ server {
                             local lasthash = pck:get(token .. "_" .. clt)
                             if lasthash ~= nil then
                                 eurl = ngx.re.gsub(url,"^http://127\\.0\\.0\\.1:32400","")
-                                eurl = eurl:gsub("([\\.\\?])","\\\\%1")
+                                eurl = eurl:gsub("([\\.\\?\\\\\\[\\]\\(\\)\\+\\*\\{\\}\\^\\$\\/])","\\\\%1")
                                 local xml = f:read("*a")
                                 if ngx.re.find(xml," (thumb|grandparentThumb)=\\"" .. eurl .. "\\"") ~= nil then
                                     ngx.req.set_header("X-Plex-Token", clt)
