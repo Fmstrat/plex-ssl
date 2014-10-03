@@ -107,7 +107,7 @@ server {
                     local t = ngx.time()
                     local lt = pck:get(ek)
                     local lasthash = pck:get(token .. "_" .. clt)
-                    if ((((lt ~= nil and type(lt) == "number" and lt < t) or ngx.re.find(ngx.var.request_uri,"^/:/websockets") ~= nil) and (lasthash ~= nil)) or pbt ~= nil) then
+                    if ((((lt ~= nil and tonumber(lt) > t) or ngx.re.find(ngx.var.request_uri,"^/:/websockets") ~= nil) and (lasthash ~= nil)) or pbt ~= nil) then
                         na = false
                     else
                         local res = ngx.location.capture("/devices.xml?X-Plex-Token=" .. token)
