@@ -105,7 +105,11 @@ server {
                 local h = "my.externalhost.com"
                 local p = "32400"
                 if m then
-                    p = m[1] .. m[2]
+                    if m[1] ~= nil then
+                        p = m[1] .. m[2]
+                    else
+                        p = m[2]
+                    end
                     r = "address=\\"" .. h .. "\\" host=\\"" .. h .. "\\" scheme=\\"https\\""
                 end
                 local b = ngx.re.sub(a, s, r)
