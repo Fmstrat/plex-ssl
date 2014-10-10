@@ -69,7 +69,7 @@ The configuration script supplied should do most of the hard work for you.  In a
 
 ```
 ~# cd ~
-~# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/ubuntu/setup-ubuntu.sh
+~# wget https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/ubuntu/setup-ubuntu.sh
 ~# sudo bash setup-ubuntu.sh
 ```
 
