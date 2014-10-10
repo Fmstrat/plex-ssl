@@ -171,6 +171,15 @@ Now, configure Plex:
 
 <a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
 
+
+Checking for insecure connections / token leaks
+--------------
+
+If a client connects insecurly and leaks its token, it should be logged in
+```
+/var/log/nginx/security.log
+```
+
  
 Option 2: Manual configuration
 --------------
