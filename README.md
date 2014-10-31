@@ -189,6 +189,8 @@ You can look through the detailed instructions for CentOS and RHEL below to get 
 #**CentOS and RHEL variants**
 --------------
 
+##<font color='red'>NOTE:  The CentOS / RHEL documentation and scripts described below are currently out-of-date, without the same features as Ubuntu, above.</font>
+
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
 - Internal PMS IP: *192.168.3.207*
