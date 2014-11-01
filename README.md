@@ -109,8 +109,8 @@ NAS |/usr/lib/plexmediaserver/Resources/cacert.pem ??
 
 You will need administrative or root access to edit this file.
 
-On Windows, you can right click *Notepad*, select *Run as Administrator*, then open the cacerts.pem file from Notepad.
-(Hint: You'll need to change *Text Documents* to *All Files* in order to see cacert.pem)
+On Windows, you can right click *Wordpad*, select *Run as Administrator*, then open the cacerts.pem file from Wordpad.
+(Hint: You'll need to change *All Wordpad Documents* to *All Files* in order to see cacert.pem)
 
 On Ubuntu, you can run the below as root:
 ```
