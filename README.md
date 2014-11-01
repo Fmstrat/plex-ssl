@@ -169,7 +169,7 @@ Now, configure Plex:
 - Check **Require authentication on local networks**
 - Lastly, add media to your library
 
-<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
+<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.  This secure proxy will attempt to do user authentication/token validation as an added layer of security, just in-case Local Network Authentication isn't enabled in PMS.  However it hasn't been thoroughly tested, and therefore shouldn't be fully trusted.
 
 
 Checking for insecure connections / token leaks
