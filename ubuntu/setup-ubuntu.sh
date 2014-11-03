@@ -61,7 +61,7 @@ fi
 
 publicip=`wget -qO- icanhazip.com|sed 's/ *$//'`
 #geojson=`wget -qO- http://freegeoip.net/json/`
-geojson=`wget -qO- http://http://www.telize.com/geoip`
+geojson=`wget -qO- http://www.telize.com/geoip`
 
 # see if we can get jq
 if ! type "jq" > /dev/null; then
