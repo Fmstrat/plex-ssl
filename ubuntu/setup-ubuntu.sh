@@ -607,6 +607,18 @@ if $getpem; then
         else
           echo "Sorry, you already started entering data. Can't be done now."
         fi
+        if [ $complete == false ]; then
+          check=""
+          until [ "$check" == "yes" ] || [ "$check" == "no" ]; do
+            echo -n "Do you want to restart entry of this certificate? [yes/no]:";
+            read check
+          done
+          if [ "$check" == "yes" ]; then
+            linecount=0
+             cat /dev/null > $tmpfile
+             complete=true
+          fi
+        fi
       fi
     done
   done
