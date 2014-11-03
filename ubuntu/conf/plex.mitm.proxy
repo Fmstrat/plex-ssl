@@ -24,7 +24,7 @@ server {
             if a ~= nil and a ~= "" then
                 local s = "host=\\"\\""
                 local r = "host=\\"\\" scheme=\\"http\\""
-                local m,err = ngx.re.match(a,"port=\\"([0-9]*)(443|465|563|995|993)\\"")
+                local m,err = ngx.re.match(a,"port=\\"([0-9]+)\\"")
                 local h = ngx.var.secure_domain
                 local p = "32400"
                 if m then
