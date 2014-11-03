@@ -64,6 +64,8 @@ Option 1: Use the configuration script
 
 **The below script assumes you will be using StartSSL or similar provider.** If you already have a validated certificate, you will be asked during the script to use it or create a new one. If you wish to configure your system in a unique way beyond what the script handles, please follow the guide for [Option 2: Manual configuration](#option-2-manual-configuration) or follow the steps inside the configuration scripts manually.
 
+If you want to update an exisitng installation of this proxy, re-download and re-run the installation scripts as instructed below, enter your domain name and Plex Media Server IP addresses upon request, but answer "no" to the certificate questions.
+
 Run the script
 --------------
 The configuration script supplied should do most of the hard work for you.  In an Ubuntu terminal/ssh session, enter these three lines, then carefully follow the instructions:
