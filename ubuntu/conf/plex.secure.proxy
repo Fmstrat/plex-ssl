@@ -55,7 +55,8 @@ server {
     ssl on;  
     ssl_certificate /opt/ssl-plex/certs/proxy.pem;  
     ssl_certificate_key /opt/ssl-plex/certs/proxy.key;  
-    ssl_session_cache shared:SSL:10m;  
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 
     # if port was accessed as http, redirect to http connection mamanger 
     error_page 497 = @insecure;
