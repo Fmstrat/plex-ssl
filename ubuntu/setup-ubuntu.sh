@@ -60,7 +60,8 @@ if [ "$confirm" != "yes" ]; then
 fi
 
 publicip=`wget -qO- icanhazip.com|sed 's/ *$//'`
-geojson=`wget -qO- http://freegeoip.net/json/`
+#geojson=`wget -qO- http://freegeoip.net/json/`
+geojson=`wget -qO- http://http://www.telize.com/geoip`
 
 # see if we can get jq
 if ! type "jq" > /dev/null; then
@@ -75,7 +76,8 @@ if ! type "jq" > /dev/null; then
   exit 1
 fi
 countrycode=`echo "$geojson"|jq -r '.country_code'`
-state=`echo "$geojson"|jq -r '.region_name'`
+#state=`echo "$geojson"|jq -r '.region_name'`
+state=`echo "$geojson"|jq -r '.region'`
 city=`echo "$geojson"|jq -r '.city'`
 
 echo ""
