@@ -1,11 +1,140 @@
 # Man in The Middle Proxy for securing PMS publications to plex.tv
 
+server {  
+  
+    set $secure_domain 'my.externalhost.com';
+
+    listen 443;  
+    server_name plex.tv;
+
+    ssl on;  
+    ssl_certificate /opt/ssl-plex/certs/mitm.pem;  
+    ssl_certificate_key /opt/ssl-plex/certs/mitm.key;  
+    ssl_session_cache shared:SSL:10m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+    location @proxy {
+        proxy_pass https://www.plex.tv;
+        proxy_set_header Host $host:$server_port;
+    }
+
+    location ~ "(.*)servers.xml(.*)" {
+        content_by_lua '
+            ngx.req.read_body()
+            local a = ngx.req.get_body_data()
+            if a ~= nil and a ~= "" then
+                local s = "host=\\"\\""
+                local r = "host=\\"\\" scheme=\\"http\\""
+                local m,err = ngx.re.match(a,"port=\\"([0-9]+)\\"")
+                local h = ngx.var.secure_domain
+                local p = "32400"
+                if m then
+                    if m[1] ~= nil then
+                        p = m[1]
+                    end
+                    r = "address=\\"" .. h .. "\\" host=\\"" .. h .. "\\" scheme=\\"https\\""
+                end
+                local b = ngx.re.sub(a, s, r)
+                local b = ngx.re.sub(b, "localAddresses=\\"[^\\"]*\\"", "localAddresses=\\"127.0.0.1\\"")
+                local args = ngx.req.get_uri_args()
+                local key = args["auth_token"]
+                if key ~= nil then
+                    local ips = a:match("localAddresses=\\"([^\\"]+)\\"")
+                    local pk = ngx.shared.pmskeys;
+                    local ph = ngx.shared.pmshosts;
+                    for ip in string.gmatch(ips, "([^,]+)") do
+                        pk:set(ip, key)
+                        ph:set(ip, h .. ":" .. p)
+                    end
+                    pk:set(ngx.var.remote_addr, key)
+                    -- Save PMS addresses/auth tokens to a file for use incase nginx restarts
+                    -- Probably should store in more secure location than /tmp
+                    local f = io.open("/tmp/pmskeys","w+")
+                    if f ~= nil then
+                        local pke = pk:get_keys()
+                        for k,v in pairs(pke) do
+                            -- f:write(v .. "\\t" .. key .. "\\n")
+                            f:write(v .. "\\t" .. key .. "\\t" .. h .. ":" .. p .. "\\n")
+                        end
+                        f:close()
+                    end
+                end
+                ngx.req.set_body_data(b)
+            end
+            ngx.exec("@proxy")
+        ';
+        break;
+    }
+
+    location / {  
+        content_by_lua '
+            ngx.exec("@proxy")
+        ';
+    }  
+}
+
+lua_shared_dict pmskeys 512k;
+lua_shared_dict pmshosts 512k;
+lua_shared_dict pmsclientkeys 1m;
+lua_shared_dict pmssubnets 512k;
+
+init_by_lua '
+    -- Read cached pms server auth tokens (this probably should be stored in a more secure location than /tmp)
+    local ph = ngx.shared.pmshosts;
+    local pk = ngx.shared.pmskeys;
+    local f = io.open("/tmp/pmskeys","r")
+    if f ~= nil then
+        for l in f:lines() do
+            local k,v,h = l:match("([^\\t]+)\\t([^\\t]+)\\t([^\\t]+)")
+            if k ~= nil then
+                pk:set(k,v)
+                ph:set(k,h)
+            end
+        end
+       f:close()
+    end
+
+    local pck = ngx.shared.pmsclientkeys;
+    local fc = io.open("/tmp/pms_clients","r")
+    if fc ~= nil then
+       for l in fc:lines() do
+           local k,v = l:match("([^\\t]+)\\t([^\\t]+)")
+           if k ~= nil then
+               pck:set(k,v)
+           end
+       end
+      fc:close()
+    end
+
+    -- Load our subnet information
+    local psn = ngx.shared.pmssubnets;
+    local cmd = io.popen("/sbin/ip addr show", "r")
+    if cmd ~= nil then
+        for l in cmd:lines() do
+            local i3,i2,i1,i0,sn = l:match("inet ([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)/([0-9]+)")
+            sn = tonumber(sn)
+            if i3 ~= nil and sn > 0 and sn < 32 then
+                local sft = math.pow(2,32-sn)
+                local iip = math.floor(((i3 * math.pow(256,3)) + (i2 * math.pow(256,2)) + (i1 * 256) + i0)/sft)
+                psn:set(iip,sft)
+            end
+        end
+        cmd:close()
+    end
+
+';
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
 server {
 
     listen 8099;
 
     location /plex/certs/mitm.cer {
-        root /opt/ssl-plex/certs;
+        root /usr/local/nginx/conf;
         rewrite ^ /mitm.pem break;
     }
 
@@ -23,41 +152,3 @@ server {
 
 }
 
-server {
-
-    listen 443;
-    server_name plex.tv;
-
-    ssl on;
-    ssl_certificate /opt/ssl-plex/certs/mitm.pem;
-    ssl_certificate_key /opt/ssl-plex/certs/mitm.key;
-    ssl_session_cache shared:SSL:10m;
-
-    location @proxy {
-        proxy_pass https://www.plex.tv;
-        proxy_set_header Host plex.tv;
-    }
-
-    location ~ "(.*)servers.xml(.*)" {
-        content_by_lua '
-                ngx.req.read_body()
-                local a = ngx.req.get_body_data()
-                if a ~= nil and a ~= "" then
-                        local f = "host=\\"\\""
-                        local r = "host=\\"\\" scheme=\\"http\\""
-                        local isssl = ngx.re.match(a,"port=\\"[0-9]*(443|465|563|995|993)\\"")
-                        if isssl then
-                                r = "address=\\"my.externalhost.com\\" scheme=\\"https\\""
-                        end
-                        local b = ngx.re.sub(a, f, r)
-                        ngx.req.set_body_data(b)
-                end
-                ngx.exec("@proxy")
-        ';
-        break;
-    }
-
-    location / {
-        content_by_lua 'ngx.exec("@proxy")';
-    }
-}

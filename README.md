@@ -5,7 +5,7 @@ A guide to using NGINX to secure Plex via SSL.
 
 **THIS IS CURRENTLY UNDER DEVELOPMENT BY JKIEL AND FMSTRAT. THIS IS EXPERIMENTAL AND HAS NOT YET BEEN TESTED THOUROUGHLY. THIS DISCLAIMER WILL BE REMOVED WHEN THE HOWTO AND CONFIGURATION FILES ARE UPDATED TO THEIR FINAL STATES AND TESTING IS COMPLETED.**
 
-This guide is based on all the hard work by [jkiel](https://forums.plex.tv/index.php/user/91991-jkiel/) by tracing the HTTP/S requests between PMS, Plex.tv, and clients. His work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team will have a native solution relativly soon.
+This guide is based on all the hard work by [Fmstrat](https://forums.plex.tv/index.php/user/188868-fmstrat/) and [jkiel](https://forums.plex.tv/index.php/user/91991-jkiel/) of tracing the HTTP/S requests between PMS, Plex.tv, and clients. Their work work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team will have a native solution relativly soon.
 
 The post by [Fmstrat](https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members [in this thread](https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/).
 
@@ -26,15 +26,17 @@ Any Plex Web clients tested below were testing by going directly to the remote I
 OS/Device|Client|Result|Notes
 ----------------|----------------|----------------|--------------
 Android 4.x|Plex App|**Pass**|
-iOS 7|Plex Web on Chrome|**Partial Pass**|Websockets do not work, breaking some features|
+iOS 7|Plex Web on Chrome|**Partial Pass**|Works, but must not be accessed via plex.tv
 iOS 7|Plex App|Fail|Works, but transmits token insecurly over http
-OSX|Plex Web on Chrome|**Partial Pass**|Websockets do not work, breaking some features|
+OSX|Plex Web on Chrome|**Partial Pass**|Works, but must not be accessed via plex.tv
 RasPlex|PHT|**Pass**|
 Windows|PHT|**Pass**|
-Windows|Plex App|Fail|Works, but transmits token insecurly over http
+Windows 8|Plex App|Fail|Works, but transmits token insecurly over http
+Windows 8|Plex App Beta 1.6.4.5|**Pass**|
 Roku 3|Plex App|Fail|Functions securely, but artwork fails, making browsing near impossible
 Roku 3|RarFlix|Fail|Functions securely, but artwork fails, making browsing near impossible
-
+Plex Web|Plex Web|**Partial Pass**|Works, but must not be accessed via plex.tv
+All|Mobile Media Server|Fail|Using mobile media server on any of the clients on an untrusted network will pose a security risk
 
 #**Before you begin: Certificates**
 --------------
@@ -53,14 +55,16 @@ For proxying between clients and Plex Media Server, we will require a "trusted" 
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- You are running Ubuntu in a Virtual Machine (This is not required). If you are new to virtual machines, <a href="https://help.ubuntu.com/community/KVM/Installation">KVM</a> is free, Open Source, and built into Ubuntu. <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> is another free solution and <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> is a free version of the commercial VMWare solution. All are good places to start.
-- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed
-- No other services have been installed on Ubuntu, except openssh-server
+- You are running Ubuntu in a Virtual Machine. Machine requirements are low.  256MB Ram, 1 CPU and 8GB HD should be plenty. (A virtual machine is not required, but is recomended.) If you are new to virtual machines, <a href="https://help.ubuntu.com/community/KVM/Installation">KVM</a> is free, Open Source, and built into Ubuntu. <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> is another free solution and <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> is a free version of the commercial VMWare solution. All are good places to start.
+- That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.
+- No other services have been installed on Ubuntu, except openssh-server.  (While this may be able to run with existing services, like Plex Media Server, it's recomended to run this secure NGINX proxy on its own, dedicated, virtual machine.)
 
 Option 1: Use the configuration script
 --------------
 
 **The below script assumes you will be using StartSSL or similar provider.** If you already have a validated certificate, you will be asked during the script to use it or create a new one. If you wish to configure your system in a unique way beyond what the script handles, please follow the guide for [Option 2: Manual configuration](#option-2-manual-configuration) or follow the steps inside the configuration scripts manually.
+
+If you want to update an exisitng installation of this proxy, re-download and re-run the installation scripts as instructed below, enter your domain name and Plex Media Server IP addresses upon request, but answer "no" to the certificate questions.
 
 Run the script
 --------------
@@ -68,7 +72,7 @@ The configuration script supplied should do most of the hard work for you.  In a
 
 ```
 ~# cd ~
-~# wget https://raw.githubusercontent.com/Fmstrat/plex-ssl/master/ubuntu/setup-ubuntu.sh
+~# wget -N https://raw.githubusercontent.com/JohnKiel/plex-ssl/master/ubuntu/setup-ubuntu.sh
 ~# sudo bash setup-ubuntu.sh
 ```
 
@@ -108,8 +112,8 @@ NAS |/usr/lib/plexmediaserver/Resources/cacert.pem ??
 
 You will need administrative or root access to edit this file.
 
-On Windows, you can right click *Notepad*, select *Run as Administrator*, then open the cacerts.pem file from Notepad.
-(Hint: You'll need to change *Text Documents* to *All Files* in order to see cacert.pem)
+On Windows, you can right click *Wordpad*, select *Run as Administrator*, then open the cacerts.pem file from Wordpad.
+(Hint: You'll need to change *All Wordpad Documents* to *All Files* in order to see cacert.pem)
 
 On Ubuntu, you can run the below as root:
 ```
@@ -168,7 +172,16 @@ Now, configure Plex:
 - Check **Require authentication on local networks**
 - Lastly, add media to your library
 
-<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.
+<a http="https://support.plex.tv/hc/en-us/articles/200890058-Server-Security-Local-network-authentication" target="_blank">Enabling Local Network Authentication</a> in your PMS server is VERY IMPORTANT. The secure reverse proxy will make PMS think that all traffic from the proxy is local.  This secure proxy will attempt to authenticate the user's token as an added layer of security, just in-case Local Network Authentication isn't enabled in PMS.  However it hasn't been thoroughly tested, and therefore shouldn't be fully trusted.
+
+
+Checking for insecure connections / token leaks
+--------------
+
+If a client connects insecurly and leaks its token, it should be logged in
+```
+/var/log/nginx/security.log
+```
 
  
 Option 2: Manual configuration
@@ -178,6 +191,8 @@ You can look through the detailed instructions for CentOS and RHEL below to get 
 
 #**CentOS and RHEL variants**
 --------------
+
+##<font color='red'>NOTE:  The CentOS / RHEL documentation and scripts described below are currently out-of-date, without the same features as Ubuntu, above.</font>
 
 For the sake of this guide, the following settings are used:
 - Internal PMS hostname: *pms-vm*
@@ -370,6 +385,8 @@ You must close/remove/block any non HTTPS ports on your firewall and/or router t
 
 The following is a list of known issues thus far:
 
-1. Due to Plex Web's forced use of unsecure Web Sockets (ws:), instead of secure Web Sockets (wss:), Plex Web will still attempt to communicate via HTTP.  If accessed via plex.tv, this could be a security issue since the Plex Web delivered by plex.tv is on http, not https, allowing the insecure web socket to attempt connection. If Plex Web is used by directly accessing your secure domain, the connection will be https, and the insecure websocket connection attempts will be blocked by the browser.  Lack of web sockets impeads the functionality of Plex Web.
+1. Due to Plex Web's forced use of unsecure Web Sockets (ws:) when launched from plex.tv, instead of secure Web Sockets (wss:), Plex Web will still attempt to communicate via HTTP.  If accessed via plex.tv, your token will be exposed when the websocket is opened. If Plex Web is used by directly accessing your secure domain, there shouldn't be any issues.
 2. Javascript on plex.tv will try to validate that a server is online or offline by requesting an image from the PMS server.  Unfortunatley, it requests that image over http instead of https.  To get around this, the secure proxy will detect the improper http request to an https port and forward it to an https request, but this has the side effect of potentialy opening up the security issue pointed out in issue #1.  A token could be exposed.
 3. Plex Media Server detects if a client is local or not by checking the client's IP address.  When using the secure reverse proxy, PMS will see the reverse proxy's IP address and assume the connection is local.  **You must turn on "Local network authentication" in PMS, else remote users could log in without authentication.**  Hopefully PMS will be updated to detect proxy use by looking at the request header for the client, and then mark any connection via proxy as non-local, but until then, BE CAREFUL!
+4. iOS clients will use http instead of https, leaking tokens just as before.
+5. Roku's are unable to load thumnails for use on its gridScreen object over HTTPS.  This is a bug in the Roku SDK that Roku doesn't seem eager to fix.

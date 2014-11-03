@@ -7,7 +7,7 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-github="https://raw.githubusercontent.com/Fmstrat/plex-ssl/master"
+github="https://raw.githubusercontent.com/JohnKiel/plex-ssl/master"
 confpath="/ubuntu/conf"
 nginx="/etc/nginx"
 certs="/opt/ssl-plex/certs"
@@ -60,7 +60,8 @@ if [ "$confirm" != "yes" ]; then
 fi
 
 publicip=`wget -qO- icanhazip.com|sed 's/ *$//'`
-geojson=`wget -qO- http://freegeoip.net/json/`
+#geojson=`wget -qO- http://freegeoip.net/json/`
+geojson=`wget -qO- http://www.telize.com/geoip`
 
 # see if we can get jq
 if ! type "jq" > /dev/null; then
@@ -75,7 +76,8 @@ if ! type "jq" > /dev/null; then
   exit 1
 fi
 countrycode=`echo "$geojson"|jq -r '.country_code'`
-state=`echo "$geojson"|jq -r '.region_name'`
+#state=`echo "$geojson"|jq -r '.region_name'`
+state=`echo "$geojson"|jq -r '.region'`
 city=`echo "$geojson"|jq -r '.city'`
 
 echo ""
@@ -605,6 +607,18 @@ if $getpem; then
         else
           echo "Sorry, you already started entering data. Can't be done now."
         fi
+        if [ $complete == false ]; then
+          check=""
+          until [ "$check" == "yes" ] || [ "$check" == "no" ]; do
+            echo -n "Do you want to restart entry of this certificate? [yes/no]:";
+            read check
+          done
+          if [ "$check" == "yes" ]; then
+            linecount=0
+             cat /dev/null > $tmpfile
+             complete=true
+          fi
+        fi
       fi
     done
   done
@@ -640,10 +654,10 @@ echo ""
 echo "The hosts file for Windows is in:"
 echo "C:\Windows\System32\drivers\etc\hosts"
 echo ""
-echo "For Linux,etc.:"
+echo "For Linux, etc.:"
 echo "/etc/hosts"
 echo ""
-echo "For Max OSX:"
+echo "For Mac OSX:"
 echo "/private/etc/hosts"
 echo ""
 echo "You will also need to install the following certificate on all PMS servers,"
