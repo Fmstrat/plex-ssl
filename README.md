@@ -55,7 +55,7 @@ For proxying between clients and Plex Media Server, we will require a "trusted" 
 --------------
 
 The Ubuntu configuration guide assumes the following:
-- You are running Ubuntu in a Virtual Machine. (A virtual machine is not required, but is recomended.) If you are new to virtual machines, <a href="https://help.ubuntu.com/community/KVM/Installation">KVM</a> is free, Open Source, and built into Ubuntu. <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> is another free solution and <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> is a free version of the commercial VMWare solution. All are good places to start.
+- You are running Ubuntu in a Virtual Machine. Machine requirements are low.  256MB Ram, 1 CPU and 8GB HD should be plenty. (A virtual machine is not required, but is recomended.) If you are new to virtual machines, <a href="https://help.ubuntu.com/community/KVM/Installation">KVM</a> is free, Open Source, and built into Ubuntu. <a href="https://www.virtualbox.org/" target="_blank">Virtual Box</a> is another free solution and <a href="https://my.vmware.com/web/vmware/free#desktop_end_user_computing/vmware_player/6_0" target="_blank">Vmware Player 6.0.3</a> is a free version of the commercial VMWare solution. All are good places to start.
 - That this is a fresh install of Ubuntu Server 14.04, with only the minimum packages installed.
 - No other services have been installed on Ubuntu, except openssh-server.  (While this may be able to run with existing services, like Plex Media Server, it's recomended to run this secure NGINX proxy on its own, dedicated, virtual machine.)
 
