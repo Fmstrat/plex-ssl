@@ -45,7 +45,7 @@ server {
   
     set $pms '192.168.0.10';
 
-    listen 32443;
+    listen 30443;
 
     gzip          on;
     gzip_proxied  any;
