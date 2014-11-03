@@ -29,9 +29,7 @@ server {
                 local p = "32400"
                 if m then
                     if m[1] ~= nil then
-                        p = m[1] .. m[2]
-                    else
-                        p = m[2]
+                        p = m[1]
                     end
                     r = "address=\\"" .. h .. "\\" host=\\"" .. h .. "\\" scheme=\\"https\\""
                 end
