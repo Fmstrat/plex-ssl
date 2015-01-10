@@ -5,6 +5,8 @@ A guide to using NGINX to secure Plex via SSL.
 
 **THIS IS CURRENTLY UNDER DEVELOPMENT BY JKIEL AND FMSTRAT. THIS IS EXPERIMENTAL AND HAS NOT YET BEEN TESTED THOUROUGHLY. THIS DISCLAIMER WILL BE REMOVED WHEN THE HOWTO AND CONFIGURATION FILES ARE UPDATED TO THEIR FINAL STATES AND TESTING IS COMPLETED.**
 
+**If you decide to use this MITM method, and stop using it, Plex.tv will continue to try to connect to HTTPS, causing failures. If you wish to stop using the MITM, change the configuration to use HTTP, reconnect Plex Media Server to Plex.tv, and THEN discontinue using the MITM.**
+
 This guide is based on all the hard work by [jkiel](https://forums.plex.tv/index.php/user/91991-jkiel/) by tracing the HTTP/S requests between PMS, Plex.tv, and clients. His work, and this entire HOWTO, have been developed to overcome the security issue of the authorization token of Plex being passed unsecure over the internet, making it easy for anyone on a client's network to get full access to your server. We hope this is merely a temporary fix and that the Plex team will have a native solution relativly soon.
 
 The post by [Fmstrat](https://forums.plex.tv/index.php/user/188868-fmstrat/) detailing this vulnerability and a proof of concept exploiting it can be viewed by any PlexPass members [in this thread](https://forums.plex.tv/index.php/topic/101886-proof-of-concept-token-exploit-please-fix-this-massive-security-hole/).
